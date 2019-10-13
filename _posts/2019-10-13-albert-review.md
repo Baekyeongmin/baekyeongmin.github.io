@@ -8,6 +8,7 @@ tags:
   - nlp
 last_modified_at: 2019-10-13T20:53:50-05:00
 author: yeongmin
+comments: true
 ---
 BERT를 시작으로 NLP의 Imagenet이라 불리며 Self-supervised Learning 방법이 대부분의 NLP task들에서 SOTA(State-of-the-art) 성능을 보여주고 있습니다. 최근에는 BERT의 한계점/문제점들을 분석&해결하여 더 높은 성능을 가지는 모델 및 학습방법들이 연구되고 있습니다. 이번 글에서는 현재(10월 13일기준) Natural Language Understanding의 대표적인 벤치마크인 GLUE(General Language Understanding Evaluation) 리더보드에서 종합 89.4의 점수를 기록하면서 1등을 하고 있는 ["ALBERT: A Lite BERT for self-supervised learning of language representations"](https://openreview.net/pdf?id=H1eA7AEtvS)를 리뷰하려고 합니다. (ICLR 2020 Under review paper)
 
