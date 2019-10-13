@@ -1,0 +1,9 @@
+author: yeongmin
+
+yeongmin:
+  name: Yeongmin Baek
+  email: yeongmin.baek@scatterlab.co.kr
+  links:
+    - title: GitHub
+      url: "https://github.com/baekyeongmin"
+      icon: fab fa-github-square

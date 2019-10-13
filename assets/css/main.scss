@@ -1,0 +1,25 @@
+---
+# Only the main Sass file needs front matter (the dashes are enough)
+sitemap: false
+---
+
+$serif-font-family: "Lora", serif;
+$sans-serif-font-family: "Source Sans Pro", sans-serif;
+$noto-sans-font-family: 'Noto Sans KR', sans-serif;
+$nanum-myeongjo-font-family: 'Nanum Myeongjo', serif;
+
+$base-font-family: $nanum-myeongjo-font-family;
+$headline-font-family: $nanum-myeongjo-font-family;
+$title-font-family: $serif-font-family;
+$description-font-family: $nanum-myeongjo-font-family;
+$meta-font-family: $nanum-myeongjo-font-family;
+
+/* For Image center */
+.center {
+    display: block;
+    margin: auto;
+  }
+
+@charset "utf-8";
+
+@import "so-simple";
