@@ -16,7 +16,7 @@
 # theme: jekyll-theme-so-simple
 remote_theme: mmistakes/so-simple-theme
 locale: ko-KR
-title: "Yenogmin's Blog"
+title: "Yeongmin's Blog"
 description: "It really is the best."
 baseurl: # the subpath of your site, e.g. "/blog"
 url: "https://Baekyeongmin.github.io" # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
