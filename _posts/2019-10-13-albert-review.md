@@ -55,12 +55,12 @@ BERT는 두 가지 loss(Masked LM + Next Sentence Prediction)를 이용하는데
 - Input의 구성방식: `[CLS]` + $$x_1$$ + `[SEP]` + $$x_2$$ + `[SEP]` - BERT와 동일
 - Maximum input length: 512, 10%의 확률로 Max length보다 작은 길이를 이용 - BERT와 동일
 - Tokenizer & Vocab: SentencePiece, 30000 vocab size
-- Masking method: N-gram masking (StructBert의 방법), 최대 길이는 3 길이는 $$p(n) = \frac{1/n}{\sum^N_{k=1}1/k}$$의 분포에 따라 샘플링
+- Masking method: N-gram masking (SpanBert의 방법), 최대 길이는 3 길이는 $$p(n) = \frac{1/n}{\sum^N_{k=1}1/k}$$의 분포에 따라 샘플링
 - Batch size: 4096
 - Optimizer & Learning rate: LAMB Optimizer & 0.00176
 - Step: 125000
 
-BERT와의 비교를 위해 원 저자와 비슷한 설정(데이터셋, input, max length)을 유지했습니다. 또한 최신의 연구들에서 성능 향상이 증명되었던 N-gram masking(StructBERT)뿐만 아니라 큰 batch size(RoBERTa 등) 또한 이용하였습니다. 동일한 비교를 위해 위의 조건으로 ALBERT와 BERT또한 학습했습니다.
+BERT와의 비교를 위해 원 저자와 비슷한 설정(데이터셋, input, max length)을 유지했습니다. 또한 최신의 연구들에서 성능 향상이 증명되었던 N-gram masking(SpanBERT)뿐만 아니라 큰 batch size(RoBERTa 등) 또한 이용하였습니다. 동일한 비교를 위해 위의 조건으로 ALBERT와 BERT또한 학습했습니다.
 
 ## Evaluation Benchmark
 pre-training 중에는 모델이 잘 수렴하고 있는지 확인을 위해(단 이 성능을 이용해 모델을 선택하는 등 downstream task에 영향을 주는 행위는 피했다고 합니다.) RACE 와 SQuAD dataset을 이용하여 내부적으로 MLM 및 SOP 성능을 확인했습니다.(아마 Wiki나 Book Corpus와 가장 비슷한 종류의 데이터이기 때문에 이용하였을 것으로 추측됩니다.)
@@ -127,7 +127,7 @@ BERT 기반으로 NLP가 엄청난 발전을 하고 있는데, 최근에 BERT를
 
 - Yinhan Liu, Myle Ott, Naman Goyal, Jingfei Du, Mandar Joshi, Danqi Chen, Omer Levy, Mike Lewis, Luke Zettlemoyer, and Veselin Stoyanov. RoBERTa: A robustly optimized BERT pretraining approach. arXiv, 2019
 
-- Wei Wang, Bin Bi, Ming Yan, Chen Wu, Zuyi Bao, Liwei Peng, and Luo Si. StructBERT: Incorporating language structures into pre-training for deep language understanding. arXiv, 2019.
+- Mandar Joshi, Danqi Chen, Yinhan Liu, Daniel S Weld, Luke Zettlemoyer, and Omer Levy. SpanBERT: Improving pre-training by representing and predicting spans. arXiv, 2019.
 
 - Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. BERT: Pre-training of deep idirectional transformers for language understanding. In Proceedings of the 2019 Conference of he North American Chapter of the Association for Computational Linguistics(NAACL), 2018.
 
