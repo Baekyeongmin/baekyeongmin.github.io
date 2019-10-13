@@ -27,7 +27,13 @@ comments: true
 
 ## Word Structural Objective
 
-특정 범위 내에서 임의로 섞여진 토큰들을 원래의 순서로 복구하는 문제를 풀고자 합니다. 이 문제는 위 그림과 같이 Maked-LM과 함께 학습되며 다음과 같은 과정으로 진행됩니다.
+![Pre-training-objective](/images/StructBERT/pre_training_task.jpg){: width="100%"}{: .center}
+
+특정 범위 내에서 임의로 섞여진 토큰들을 원래의 순서로 복구하는 문제를 풀고자 합니다. Masked-LM이 임의로 토큰을 Masking하고 classifier가 `[MASK]` 토큰의 위치에서 원래 토큰의 likelihood가 최대가 되도록 학습한다면(위 그림의 노란색), 이 방법은 임의로 섞여진 토큰들이 주어지고, classifier는 해당위치에서 올바른 토큰의 likelihood가 최대가 되도록하는 학습합니다.(위 그림의 파란색) 즉 이 obejctive는 $$arg \max_{\theta} \sum \log P(pos_1 = t_1, pos_2 = t_2, ...pos_K = t_K \mid t_1, t_2, .... , t_K, \theta)$$ 와 같이 나타낼 수 있습니다. 여기서 *K*는 섞여지는 subsequence의 길이인데, K가 클수록 모델은 순서가 더 많이 어그러진 문장을 복구하게 됩니다. 본 논문에서는 K=3으로 하여 최대 trigram 내부에서만 순서를 섞었습니다. 이 문제는 다음과 같은 과정으로 진행됩니다.
 
 1. 입력 토큰들의 15%를 masking하고 이를 Transformer Encoder로 인코딩 한 후, 이를 이용하여 원래의 토큰을 예측합니다.
-2. 
+2. masking이 되어 있지 않은 trigram중 일정 부분을 랜덤으로 선택하여 해당 토큰들을 섞습니다.
+3. 이렇게 섞여진 입력을 다시 Transformer Encoder로 인코딩 한 후, softmax classifier로 원래 토큰 순서를 예측합니다. 위 그림과 같이 $$(t_3, t_4, t_2)$$ 가 주어지고 각 위치에서 $$t_3 \rightarrow \t_2, t_4 \rightarrow \t_3, t_2 \rightarrow \t_r$$를 예측하도록 합니다.
+
+Masked-LM Objective와 Word Structural Objective는 동일한 모델로 한번에 함께 학습되며(jointly learned), 동일한 가중치로 학습됩니다. (최종 loss에 반영비율이 같음.)
+
