@@ -93,7 +93,7 @@ Downstream task에서는 NLU, Reading comprehension의 대표인 General Languag
 
 ![Prameter-sharing-graph](/images/ALBERT/parameter_graph.jpg){: width="100%"}{: .center}
 
-위의 그래프와 같이, 또한 파라메터 공유의 또 다른이점은 파라메터들을 안정화 시켜준다는 것입니다. 왼쪽 그래프는 특정 layer의 input과 output의 L2 distance (크기 차이)이고 오른쪽 그래프는 cosine similarity (각도 차이)를 나타냅니다. 각 값들이 클수록 해당 layer에서 많은 변화가 있는 것을 나타낸다고 볼 수 있습니다. ALBERT의 경우 BERT-Large에 비해 비교적 안정된 결과를 보여주고 있습니다.
+위의 그래프와 같이, 파라메터 공유의 또 다른이점은 파라메터들을 안정화 시켜준다는 것입니다. 왼쪽 그래프는 특정 layer의 input과 output의 L2 distance (크기 차이)이고 오른쪽 그래프는 cosine similarity (각도 차이)를 나타냅니다. 각 값들이 클수록 해당 layer에서 많은 변화가 있는 것을 나타낸다고 볼 수 있습니다. ALBERT의 경우 BERT-Large에 비해 비교적 안정된 결과를 보여주고 있습니다.
 
 Factorized Embedding Parameterize, Cross-Layer Parameter Sharing 개별적으로는 BERT학습 전략보다 낮은 성능을 보여주었습니다. 하지만 위의 최종 결과에서 BERT의 경우 Hidden size를 2048로 학습한 경우, 학습이 잘 이루어지지 않았는데, ALBERT는 위의 전략들의 효과로 얻은 적은 파라메터 + 안정화를 적극 이용, 4098의 Hidden size(ALBERT-xxLarge)도 성공적으로 학습을 진행할 수 있었습니다. (각 전략들의 시너지를 적극적으로 활용했기 때문에 얻을 수 있었던 결과라고 생각합니다.)
 
