@@ -17,7 +17,7 @@
 remote_theme: mmistakes/so-simple-theme
 locale: ko-KR
 title: "Yeongmin's Blog"
-description: "It really is the best."
+description: "Study Hard"
 baseurl: # the subpath of your site, e.g. "/blog"
 url: "https://Baekyeongmin.github.io" # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 logo: images/profile.jpeg # path of site logo, e.g. "/images/logo.png"
