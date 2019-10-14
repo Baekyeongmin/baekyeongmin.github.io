@@ -23,7 +23,7 @@ BERT를 시작으로 NLP의 Imagenet이라 불리며 Self-supervised Learning �
 기본적으로 BERT와 유사하게 Transformer Encoder 기반의 모델 구조를 이용합니다. 모델의 크기는 BERT의 하이퍼 파라메터와 동일한 Transformer Layer(Block) 수 *L*, Hidden Size *H*, Feedforward filter size(Intermediate Layer) *4H*, Attention Heads *H/64* 와 본 논문에서 추가된 단어 임베딩 사이즈 *E* 에 의해 결정됩니다. (BERT 에서는 단어 임베딩 사이즈와 Hidden size가 동일하였습니다.)
 
 ## Factorized embedding parameterization
-BERT는 단어 단위의 정적 임베딩, WordPiece Embedding (한 단어/토큰당 고정된 하나의 임베딩 값을 가지는 것)을 이용하여 Self-Attention Layer를 통해 Contextual한 Embedding을 만들어 나갑니다. 기존의 BERT 및 후속 연구의 모델들은 WordPiece Embedding의 차원(*E*)과 Contextual Embedding의 차원(*H*)이 같았는데, 이는 embedding layer의 파라메터 수가 커지는 원인입니다. 일반적으로 Embedding layer는 총 사전의 토큰(단어) 갯수 (*V*) * Word Embedding 차원(*E*), $$O(V \times E)$$ 만큼의 파라메터를 갖습니다. 이는 *V=30000, E=768*안 BERT-base기준 Word Embedding에서 약 23M개인데, 총 파라메터 108M 대비 21%로 상당히 큰 부분을 차지합니다.
+BERT는 단어 단위의 정적 임베딩, WordPiece Embedding (한 단어/토큰당 고정된 하나의 임베딩 값을 가지는 것)을 이용하여 Self-Attention Layer를 통해 Contextual한 Embedding을 만들어 나갑니다. 기존의 BERT 및 후속 연구의 모델들은 WordPiece Embedding의 차원(*E*)과 Contextual Embedding의 차원(*H*)이 같았는데, 이는 embedding layer의 파라메터 수가 커지는 원인입니다. 일반적으로 Embedding layer는 총 사전의 토큰(단어) 갯수 (*V*) * Word Embedding 차원(*E*), $$O(V \times E)$$ 만큼의 파라메터를 갖습니다. 이는 *V=30000, E=768*인 BERT-base기준 Word Embedding에서 약 23M개인데, 총 파라메터 108M 대비 21%로 상당히 큰 부분을 차지합니다.
 
 또한 이전 연구들에서 BERT는 Word단위 Representation보다는 Self-Attention을 이용해 만들어진 Context-representation에 기반한다는 것을 보였습니다. 이에 근거하여, 본 논문에서는 *E*를 줄이는 방법을 시도했습니다. *H >> E*인 *E*를 이용하여 Word Embedding을 계산하고, 이를 다시 *H*에 맞게 늘려서(Feedforward layer하나를 추가해서) BERT encoder에 입력으로 넣어줍니다. 따라서 $$O(V \times E + E \times H)$$ 만큼의 파라메터를 갖습니다. 이는 *V=30000, E=128, H=768* 기준 약 4M으로 기존 방법에 비해 약 1/6정도의 양으로 볼 수 있습니다.
 
@@ -41,7 +41,7 @@ BERT는 두 가지 loss(Masked LM + Next Sentence Prediction)를 이용하는데
 
 본 논문에서는 또 다른 부분을 지적합니다. 일반적으로 BERT pre-training시에 NSP의 정확도는 95%이상으로 수렴하게 되는데,이는 이 문제가 매우 쉽게 풀리기 때문입니다. NSP를 위한 negative sampling 은 다른 도큐먼트들 중 random으로 선택하는  방식을 이용하는데, 해당 방식은 각 segment의 토픽만 제대로 파악하면 바로 맞출 수 있는 문제입니다. 따라서 문장들 간의 내부 연관성을 파악하는 것(본래 NSP의 목적)이 아닌 단순 토픽 선택 문제 정도가 됩니다.
  
-이 문제점을 해결하기 위해, 내부 문장간의 관계를 이해할 수 있는 새로운 Sentence-Order Prediction(SOP) loss를 소개합니다. positive는 BERT와 동일하게 유지하고, 기존의 연속적인 segment들의 앞뒤 순서를 바꿔서 negative sample을 만듭니다. 즉 한 도큐먼트 내에서 해당 문장들의 순서가 올바른지(Positive), 반대로 되어있는지(Negative)를 구분하는 문제를 풀게 됩니다. 이렇게 되면 토픽이 아닌 문장의 내부 구조 자체를 이해 해야만 문제를 풀 수 있게 된다. (부가적으로 동일 도큐먼트 내에서 순서를 섞는 작업만 이루어지기 때문에 다른 논문들에서 제시한 attention 문제도 해결하게 됩니다.)
+이 문제점을 해결하기 위해, 내부 문장간의 관계를 이해할 수 있는 새로운 Sentence-Order Prediction(SOP) loss를 소개합니다. positive는 BERT와 동일하게 유지하고, 기존의 연속적인 segment들의 앞뒤 순서를 바꿔서 negative sample을 만듭니다. 즉 한 도큐먼트 내에서 해당 문장들의 순서가 올바른지(Positive), 반대로 되어있는지(Negative)를 구분하는 문제를 풀게 됩니다. 이렇게 되면 토픽이 아닌 문장의 내부 구조 자체를 이해 해야만 문제를 풀 수 있게 됩니다. (부가적으로 동일 도큐먼트 내에서 순서를 섞는 작업만 이루어지기 때문에 다른 논문들에서 제시한 attention 문제도 해결하게 됩니다.)
 
 # Experiment Detail
 ## Model Setup
