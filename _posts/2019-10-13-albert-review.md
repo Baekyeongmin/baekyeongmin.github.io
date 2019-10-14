@@ -70,7 +70,7 @@ Downstream task에서는 NLU, Reading comprehension의 대표인 General Languag
 ## Result
 ![Total-Result](/images/ALBERT/total_result.jpg){: width="100%"}{: .center}
 
-위 결과와 같이 ALBERT-xxLarge는 BERT-Large에 비해 약 70%의 파라메터로 모든 Evaluation task에서 월등히 뛰어난 성능을 보여주고 있습니다. 이는 파라메터들을 더욱 효율적으로 사용하도록 학습되었다고 볼 수 있습니다. 또한 BERT-xLarge는 Large에 비해 훨씬 좋지않은 성능을 보여주는데, BERT와 같은 구조에서 많은 파라메터를 가진 모델은 더 학습하기 힘들다는 것을 알 수 있습니다. 학습 시간또한 BERT-xLarge에 비해 ALBERT-xxLarge는 약 1.2배, BERT-xLarge는 약 2.4배 빨라졌습니다.
+위 결과와 같이 ALBERT-xxLarge는 BERT-Large에 비해 약 70%의 파라메터로 모든 Evaluation task에서 월등히 뛰어난 성능을 보여주고 있습니다. 이는 파라메터들을 더욱 효율적으로 사용하도록 학습되었다고 볼 수 있습니다. 또한 BERT-xLarge는 Large에 비해 훨씬 좋지않은 성능을 보여주는데, BERT와 같은 구조에서 많은 파라메터를 가진 모델은 더 학습하기 힘들다는 것을 알 수 있습니다. 학습 시간또한 BERT-xLarge에 비해 ALBERT-xxLarge는 약 1.2배, ALBERT-xLarge는 약 2.4배 빨라졌습니다.
 
 ## Ablation Study
 ### Factorized Embedding Parameterization
