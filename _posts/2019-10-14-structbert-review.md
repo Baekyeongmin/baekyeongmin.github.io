@@ -11,7 +11,7 @@ author: yeongmin
 comments: true
 ---
 
-이번 글에서는 Alibaba Group에서 연구한 [StructBERT: Incorporating Language Structures into Pre-training for Deep Langauge Understanding](https://arxiv.org/pdf/1908.04577.pdf)를 리뷰하려고 힙니다. 본 논문은 현재 ALBERT에 이어 GLUE 벤치마크 리더보드에서 89.0(2위)의 점수를 얻고 있습니다. 언어의 유창함은 단어와 문장의 순서에 의해 결정되는데, 본 논문에서는 sequencial modeling은 "순서"에 대해 주목했습니다. BERT pre-training 단계에서 문장 내부와 문장들 사이 순서의 구조적 정보를 학습할 수 있는 새로운 전략을 제시합니다. 
+이번 글에서는 Alibaba Group에서 연구한 ["StructBERT: Incorporating Language Structures into Pre-training for Deep Langauge Understanding"](https://arxiv.org/pdf/1908.04577.pdf)를 리뷰하려고 힙니다. 본 논문은 현재 ALBERT에 이어 GLUE 벤치마크 리더보드에서 89.0(2위)의 점수를 얻고 있습니다. 언어의 유창함은 단어와 문장의 순서에 의해 결정되는데, 본 논문에서는 sequencial modeling은 "순서"에 대해 주목했습니다. BERT pre-training 단계에서 문장 내부와 문장들 사이 순서의 구조적 정보를 학습할 수 있는 새로운 전략을 제시합니다. 
 
 # Main Idea
 1. BERT에서 Bidirectional Transformer Encoder를 이용하여 두 개의 Objective(Masked-LM, NSP)를 pre-training하여 각 토큰의 Contextual representation을 얻을 수 있었습니다. 본 논문에서는 pre-training 단계에서 특정 토큰들 및 문장들의 "순서"를 예측하는 문제를 추가함으로써, 모델이 잘 정제된 단어 구조와 문장간의 구조를 학습하도록 했습니다.
