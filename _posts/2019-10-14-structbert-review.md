@@ -21,11 +21,11 @@ comments: true
 3. NSP objective는 쉽게 97-98% 정도의 정확도에 도달할 수 있는데, 이는 문제 자체가 너무 쉽기 때문입니다. 이러한 점에서 NSP를 확장하여 조금 더 어려운 문장들(segment) 사이의 관계를 모델링할 수 있는 pre-training objective를 제시합니다.
 
 # StructBERT
-## Model Architecture
+## 1. Model Architecture
 
 기본적으로 StructBERT는 입력 문장의 contextual representation을 인코딩하기 위해, Multi-Layer Transformer Encoder, 즉 BERT의 모델 구조를 수정없이 그대로 이용합니다. 입력의 형태또한 BERT의 방식과 동일하게 `[CLS]` + Segment1 + `[SEP]` + Segment2 + `[SEP]`를 이용합니다. 두 segment를 구분하기 위한 segment embedding 및 토큰의 position을 구분하기 위한 positional embedding역시 동일하게 이용합니다.
 
-## Word Structural Objective
+## 2. Word Structural Objective
 
 ![Pre-training-objective](/images/StructBERT/pre_training_task.jpg){: width="100%"}{: .center}
 
@@ -37,7 +37,7 @@ comments: true
 
 Masked-LM Objective와 새롭게 제시한 Word Ordering Objective는 동일한 모델로 한번에 함께 학습되며(jointly learned), 동일한 가중치로 학습됩니다. (최종 loss에 반영비율이 같습니다.)
 
-## Sentence Structural Objective
+## 3. Sentence Structural Objective
 
 BERT는 Auxiliary task로 Next Sentence Prediction(NSP)를 제시합니다. 이는 `[CLS]` + Segment1 + `[SEP]` + Segment2 + `[SEP]`의 형식에서 Segment2 가 Segment2 다음에 오는 것이 맞는지 예측하는 문제입니다. BERT의 저자들은 문장들 쌍의 모델링(QA, NLI, Similairty 등)을 위해 이와 같은 obejective를 제시했습니다.
 본 논문에서는 NSP에 이전 문장 예측를 추가적으로 확장합니다. Segment2가 Segment1 다음에 오기에 적절한 Segment인지 예측할 뿐만 아니라 Segment2가 순서상 Segment1 이전에 오기에 적절한지 추가적으로 예측합니다. 즉 3가지 클래스에 대한 분류문제를 풀게 됩니다. 따라서 다음과 같이 데이터 셋을 구성합니다.
@@ -48,7 +48,7 @@ BERT는 Auxiliary task로 Next Sentence Prediction(NSP)를 제시합니다. 이�
 
 저자들은 모든 위의 3가지 방법들을 동일한 확률(1/3)로 샘플링했습니다. 그리고 학습시에 BERT의 방식과 동일하게 Transformer Encoder의 최종 hidden state의 `[CLS]`토큰 representation을 이용하여 classifier를 학습했습니다.
 
-## Pre-training setup
+## 4. Pre-training setup
 
 최종 objective fuction은 Word Structural Objective(MLM + Word ordering)과 Sentence Structural Objective의 선형 결합으로 구성됩니다. Masked LM을 위해 Masking prob(15%) 등을 BERT와 동일한 설정으로 유지했고, Word ordering을 위해서 전체 중 5%의 trigram을 선택하여 셔플링을 진행했습니다. 다른 설정들은 다음과 같습니다.
 
@@ -64,7 +64,7 @@ BERT는 Auxiliary task로 Next Sentence Prediction(NSP)를 제시합니다. 이�
 
 총 3개의 Downstream task [General Language Understanding Evaluation(GLUE), Stanford Natural Language Inference(SNLI), Stanford Question Answering Dataset(SQuAD v1.1)]에 대해 fine-tuning을 진행했습니다. Fine tuning에서는 Batch size {16,24,32}, Learning rate {2e-5, 3e-5, 5e-5}, Number of epochs {2, 3}, Dropout rate {0.05, 0.1}의 하이퍼 파라메터에 대해 exhaustive search를 진행했고, dev set에서 가장 좋은 성능을 보인 모델을 선택했습니다.
 
-## GLUE
+## 1. GLUE
 
 ![glue result](/images/StructBERT/glue.jpg){: width="100%"}{: .center}
 
@@ -72,13 +72,13 @@ GLUE 벤치마크는 총 9개의 NLU 테스크들로 구성되며 각 테스크�
 
 XLNet/RoBERTa 등의 최신 연구에서 pre-training시 추가적인 데이터의 이용은 큰 성능 향상을 가져온다는 것을 증명했습니다. 위의 표에서 StructBERT는 추가적인 데이터를 이용하지 않고 BERT와 동일한 설정을 이용했기 때문에 XLNet, RoBERTa와 동등한 비교가 이루어지지 않습니다. 따라서 저자들은 RoBERTa에 본 논문에서 제시한 두 개의 objective를 추가한 StructBERTRoBERTa를 학습했습니다. 결과적으로 추가적인 데이터를 이용하지 않은 경우에는 동일 설정의 나머지 모델들(BERT, SpanBERT, MT-DNN)에 비해 뛰어난 성능을, 추가적인 데이터를 이용한 경우에도 RoBERTa, XLNet보다 뛰어난 성능을 얻었습니다.
 
-## SNLI
+## 2. SNLI
 
 ![snli result](/images/StructBERT/SNLI.jpg){: width="100%"}{: .center}
 
 SNLI도 두 문장간의 의미적 관계를 파악하는 테스크 입니다.(위의 MRPC, RTE, STS-B, MNLI와 유사함) 두 문장이 entailment/contradiction/neutral 중 어떤 관계인지 분류하는 문제를 풉니다. StructBERT는 문장간의 관계에 조금 더 집중할 수 있는 sentence ordering objective를 제시한 만큼 위 그림과 같이 기존모델에 비해 향상된 결과를 보였습니다.
 
-## Extractive Question Answering
+## 3. Extractive Question Answering
 
 ![squad result](/images/StructBERT/squad.jpg){: width="100%"}{: .center}
 
