@@ -11,7 +11,7 @@ author: yeongmin
 comments: true
 ---
 
-이번 글에서는 Alibaba Group에서 연구한 ["StructBERT: Incorporating Language Structures into Pre-training for Deep Langauge Understanding"](https://arxiv.org/pdf/1908.04577.pdf)를 리뷰하려고 힙니다. 본 논문은 현재 ALBERT에 이어 GLUE 벤치마크 리더보드에서 89.0(2위)의 점수를 얻고 있습니다. 언어의 유창함은 단어와 문장의 순서에 의해 결정되는데, 본 논문에서는 sequencial modeling은 "순서"에 대해 주목했습니다. BERT pre-training 단계에서 문장 내부와 문장들 사이 순서의 구조적 정보를 학습할 수 있는 새로운 전략을 제시합니다. 
+이번 글에서는 Alibaba Group에서 연구한 ["StructBERT: Incorporating Language Structures into Pre-training for Deep Langauge Understanding"](https://arxiv.org/pdf/1908.04577.pdf)를 리뷰하려고 힙니다. 본 논문은 현재 ALBERT에 이어 GLUE 벤치마크 리더보드에서 89.0(2위)의 점수를 얻고 있습니다. 언어의 유창함은 단어와 문장의 순서에 의해 결정되는데, 본 논문에서는 sequential modeling은 "순서"에 대해 주목했습니다. BERT pre-training 단계에서 문장 내부와 문장들 사이 순서의 구조적 정보를 학습할 수 있는 새로운 전략을 제시합니다. 
 
 # Main Idea
 1. BERT에서 Bidirectional Transformer Encoder를 이용하여 두 개의 Objective(Masked-LM, NSP)를 pre-training하여 각 토큰의 Contextual representation을 얻을 수 있었습니다. 본 논문에서는 pre-training 단계에서 특정 토큰들 및 문장들의 "순서"를 예측하는 문제를 추가함으로써, 모델이 잘 정제된 단어 구조와 문장간의 구조를 학습하도록 했습니다.
@@ -39,7 +39,7 @@ Masked-LM Objective와 새롭게 제시한 Word Ordering Objective는 동일한 
 
 ## 3. Sentence Structural Objective
 
-BERT는 Auxiliary task로 Next Sentence Prediction(NSP)를 제시합니다. 이는 `[CLS]` + Segment1 + `[SEP]` + Segment2 + `[SEP]`의 형식에서 Segment2 가 Segment2 다음에 오는 것이 맞는지 예측하는 문제입니다. BERT의 저자들은 문장들 쌍의 모델링(QA, NLI, Similairty 등)을 위해 이와 같은 obejective를 제시했습니다.
+BERT는 Auxiliary task로 Next Sentence Prediction(NSP)을 제시합니다. 이는 `[CLS]` + Segment1 + `[SEP]` + Segment2 + `[SEP]`의 형식에서 Segment2 가 Segment2 다음에 오는 것이 맞는지 예측하는 문제입니다. BERT의 저자들은 문장들 쌍의 모델링(QA, NLI, Similairty 등)을 위해 이와 같은 obejective를 제시했습니다.
 본 논문에서는 NSP에 이전 문장 예측를 추가적으로 확장합니다. Segment2가 Segment1 다음에 오기에 적절한 Segment인지 예측할 뿐만 아니라 Segment2가 순서상 Segment1 이전에 오기에 적절한지 추가적으로 예측합니다. 즉 3가지 클래스에 대한 분류문제를 풀게 됩니다. 따라서 다음과 같이 데이터 셋을 구성합니다.
 
 1. segment1 뒤에 segment2가 자연스럽게 이어지는 데이터 (BERT의 Positive sample과 동일)
@@ -48,9 +48,9 @@ BERT는 Auxiliary task로 Next Sentence Prediction(NSP)를 제시합니다. 이�
 
 저자들은 모든 위의 3가지 방법들을 동일한 확률(1/3)로 샘플링했습니다. 그리고 학습시에 BERT의 방식과 동일하게 Transformer Encoder의 최종 hidden state의 `[CLS]`토큰 representation을 이용하여 classifier를 학습했습니다.
 
-## 4. Pre-training setup
+## 4. Pre-training Setup
 
-최종 objective fuction은 Word Structural Objective(MLM + Word ordering)과 Sentence Structural Objective의 선형 결합으로 구성됩니다. Masked LM을 위해 Masking prob(15%) 등을 BERT와 동일한 설정으로 유지했고, Word ordering을 위해서 전체 중 5%의 trigram을 선택하여 셔플링을 진행했습니다. 다른 설정들은 다음과 같습니다.
+최종 objective fuction은 Word Structural Objective(MLM + Word ordering)와 Sentence Structural Objective의 선형 결합으로 구성됩니다. Masked LM을 위해 Masking prob(15%) 등을 BERT와 동일한 설정으로 유지했고, Word ordering을 위해서 전체 중 5%의 trigram을 선택하여 셔플링을 진행했습니다. 다른 설정들은 다음과 같습니다.
 
 - 학습 데이터: 영어 Wikipedia + BookCorpus(BERT와 동일한 설정)
 - Tokenizer: WordPiece
@@ -94,7 +94,7 @@ Extractive Question Answering은 질문과 해당 질문에 관계있는 문단�
 
 ![4graph](/images/StructBERT/4_graph.jpg){: width="100%"}{: .center}
 
-마지막으로 BERT와 StructBERT의 pre-training 양상 위 그림과 같이 나타납니다. 위 두 개의 그림을 보면, StructBERT에서 기존 BERT보다 조금 더 수렴되고 향상된 Masked-LM 성능을 볼 수 있는데, 이는 Word structural objective가 MLM에도 긍정적인 영향을 미쳤기 때문으로 볼 수 있습니다. 또한 Word Ordering 테스크 또한 70% 정도의 상당히 높은 정확도를 보이고 있는데, 이는 모델이 단어 순서를 예측하는 비교적 어려운 테스크에 대해서도 잘 학습된다는 것을 보여줍니다.
+마지막으로 BERT와 StructBERT의 pre-training 양상은 위 그림과 같이 나타납니다. 위 두 개의 그림을 보면, StructBERT에서 기존 BERT보다 조금 더 수렴되고 향상된 Masked-LM 성능을 볼 수 있는데, 이는 Word structural objective가 MLM에도 긍정적인 영향을 미쳤기 때문으로 볼 수 있습니다. 또한 Word Ordering 테스크 또한 70% 정도의 상당히 높은 정확도를 보이고 있는데, 이는 모델이 단어 순서를 예측하는 비교적 어려운 테스크에 대해서도 잘 학습된다는 것을 보여줍니다.
 
 아래 두 개의 그림에는 각각 Sentence Prediction 테스크에 대한 결과를 나타냅니다. ablation study에서 Sentence structural objective는 pair단위의 테스크들에서 성능 향상을 보였습니다. 해당 논문에서 처음에 제시했던 BERT의 next sentence prediction(약 97~98%의 성능)에 비해 조금 더 도전적인 Sentence Order Prediction(약 87~88%의 성능)을 제시하면서 pre-training 테스크 자체의 성능은 낮지만 downstream 테스크에서 큰 효과를 보일 수 있음을 증명했습니다.
 
