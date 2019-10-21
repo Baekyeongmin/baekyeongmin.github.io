@@ -33,7 +33,7 @@ BERT는 아래 그림과 같이 self-supervised learning 학습법을 이용합�
 
 ## 1. Input Data
 
-BERT는 두 개의 segment(여러 토큰의 sequence, 여러 문장도 가능)과 special token으로 구성된 입력을 이용합니다. special token은 classification task의 representation으로 이용하기 위한 `[CLS]` 토큰과 두 segment를 분리하기 위한 `[SEP]` 토큰으로 구성됩니다. 최종 입력은 `[CLS]` + segment1 + `[SEP]` + segment2 + `[SEP]` 의 형태를 가집니다.
+BERT는 두 개의 segment(여러 토큰의 sequence, 여러 문장도 가능)와 special token으로 구성된 입력을 이용합니다. special token은 classification task의 representation으로 이용하기 위한 `[CLS]` 토큰과 두 segment를 분리하기 위한 `[SEP]` 토큰으로 구성됩니다. 최종 입력은 `[CLS]` + segment1 + `[SEP]` + segment2 + `[SEP]` 의 형태를 가집니다.
 
 pre-training 데이터는 영어 위키피디아와 Book Corpus를 이용하였고, 이는 약 16GB 정도의 크기를 가집니다.
 
@@ -47,17 +47,17 @@ Pre-training은 두 개의 objective(Masked Language Modeling, Next sentence pre
 
 ### 3.1. Masked Language Modeling(MLM)
 
-입력 문장에서 특정 확률(15%)에 따라 랜덤으로 몇 개의 토큰이 선택되됩니다. 선택된 15%의 토큰들 중 80%는 `[MASK]`로, 10%는 랜덤한 다른 토큰으로, 나머지 10%는 그대로 유지됩니다. MLM 은 이 선택된 토큰들을 원래의 토큰으로 예측하는 문제를 풉니다.
+입력 문장에서 특정 확률(15%)에 따라 랜덤으로 몇 개의 토큰이 선택됩니다. 선택된 15%의 토큰들 중 80%는 `[MASK]`로, 10%는 랜덤한 다른 토큰으로, 나머지 10%는 그대로 유지됩니다. MLM 은 이 선택된 토큰들을 원래의 토큰으로 예측하는 문제를 풉니다.
 
 MLM을 위한 데이터는 같은 문장이라도 서로 다른 여러 Masking 순서를 가질 수 있습니다. BERT 구현체에서는 pre-training데이터를 미리 만들고 해당 데이터를 이용하여 학습을 진행합니다. 따라서 학습 시작 시 데이터는 고정(static)됩니다. 이를 조금이라도 해결하기 위해 원래의 코드에서는 데이터를 만들 때 동일한 입력 문장에대해서 서로 다른 mask를 생성할 수 있는 `duplication_factor`라는 인자를 추가했습니다. 이 인자의 default값은 10인데 BERT가 40epoch을 학습했기 때문에 결과적으로 모델은 같은 데이터를 4번 보게 됩니다.
 
 ### 3.2. Next Sentence Prediction
 
-입력 데이터에서 두 개의 segment 의 연결이 자연스러운지(원래의 코퍼스에 존재하는 페어인지)를 예측하는 문제를 풉니다. positive sample 은 코퍼스에서 연속적인 segment를 선택함으로 써 얻을 수 있고, negative sample 은 서로 다른 문서의 segment들을 연결함으로써 얻을 수 있습니다. 이 테스크는 pair단위의 downstream task들(NLI, text similarity)을 고려하여 디자인 되었습니다.
+입력 데이터에서 두 개의 segment 의 연결이 자연스러운지(원래의 코퍼스에 존재하는 페어인지)를 예측하는 문제를 풉니다. positive sample 은 코퍼스에서 연속적인 segment를 선택함으로써 얻을 수 있고, negative sample 은 서로 다른 문서의 segment들을 연결함으로써 얻을 수 있습니다. 이 테스크는 pair단위의 downstream task들(NLI, text similarity)을 고려하여 디자인 되었습니다.
 
 ## 4. Optimization
 
-BERT는 Adam Optimizer($$\beta_1 = 0.9$$, $$\beta_2 = 0.999$$, $$\epsilon=1e-6$$, L2 weight decay = 0.01)를 이용하였습니다. Learning rate는 1e-4를 이용하였으며, 첫 10000step에서 linear-warmp하여 최대 치(1e-4)를 찍고 다시 linear하게 감소하는 스케쥴링 방법을 이용했습니다. GELU activation과 모든 layer에서 0.1 확률의 dropout을 이용했습니다. pre-training 단계에서 batch size 256으로 약 1,000,000 스탭을 학습했습니다.
+BERT는 Adam Optimizer($$\beta_1 = 0.9$$, $$\beta_2 = 0.999$$, $$\epsilon=1e-6$$, L2 weight decay = 0.01)를 이용하였습니다. Learning rate는 1e-4를 이용하였으며, 첫 10000step에서 linear-warmup하여 최대 치(1e-4)를 찍고 다시 linear하게 감소하는 스케쥴링 방법을 이용했습니다. GELU activation과 모든 layer에서 0.1 확률의 dropout을 이용했습니다. pre-training 단계에서 batch size 256으로 약 1,000,000 스탭을 학습했습니다.
 
 # Experiments
 
@@ -113,7 +113,7 @@ BERT에서는 학습 코퍼스에 휴리스틱한 토크나이징을 진행하�
 - Pre-training에 이용하는 데이터: 16GB(BERT) → RoBERTa(160G)
   - English Wikipedia & English Wekipedia(16G)
   - CC-News(Common Crawl News corpus, 76G): 2016.9 - 2019.2 까지 뉴스 기사를 크롤링 한 것으로 약 63M개의 뉴스 기사를 포함합니다.
-  - Open Web Text(38G): raddit에서 up투표를 3이상 받은 공유된 URL의 내용을 크롤링 한 것입니다.(GPT에서도 이용함)
+  - Open Web Text(38G): reddit에서 up투표를 3이상 받은 공유된 URL의 내용을 크롤링 한 것입니다.(GPT에서도 이용함)
   - Stories(31G): 크롤링된 데이터로 story-like style의 형식을 가집니다.
 
 ![result](/images/RoBERTa/result.png){: width="100%"}{: .center}
