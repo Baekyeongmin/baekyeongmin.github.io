@@ -32,9 +32,9 @@ BERT는 단어 단위의 정적 임베딩, WordPiece Embedding (한 단어/토�
 
 BERT는 *L*개의 독립적인 Transformer Block(Multi-head Attention + FeedForward)들을 순서대로 거쳐가면서 Contextual Embedding을 형성해 나갑니다. 따라서 각 Layer별로 각각의 파라메터들이 Optimize되고, Layer수에 비례하여 파라메터의 개수 & 메모리가 많아지게 됩니다.($$Layer수 \times 1 \space Layer \space parameters$$) 반면에 ALBERT에서는 공통의 파라메터를 각 Layer에서 공유하는 방법을 이용합니다. 각 Layer를 거칠 때마다, 동일한 파라메터를 재사용하여 연산을 진행하게 됩니다. 따라서 Layer의 모든 parameter를 공유하는 경우 $$1 \space Layer \space parameters$$ 만큼 파라메터 개수 & 메모리를 이용하게 됩니다.
 
-Transformer Block를 간단하게 살펴보면, 위그림과 같이 1) 입력을 Feedforward Net을 거쳐 Multihead로 나누기 → 2) 각 head별 Attention연산 → 3) Feedforward(Intermediate) Layer 연산으로 구성됩니다. (Layer Norm, Residual Connetction 등도 존재함) 여기서 여러 가지의 파라메터 공유를 하는 방법을 시도해볼 수 있는데, 본 논문에서는 Attention의 파라메터만만 공유, Feedforward의 파라메터만 공유, 모든 파라메터의 공유의 3가지 방식으로 실험을 진행했습니다. 
+Transformer Block를 간단하게 살펴보면, 위그림과 같이 1) 입력을 Feedforward Net을 거쳐 Multihead로 나누기 → 2) 각 head별 Attention연산 → 3) Feedforward(Intermediate) Layer 연산으로 구성됩니다. (Layer Norm, Residual Connetction 등도 존재함) 여기서 여러 가지의 파라메터 공유를 하는 방법을 시도해볼 수 있는데, 본 논문에서는 Attention의 파라메터만 공유, Feedforward의 파라메터만 공유, 모든 파라메터의 공유의 3가지 방식으로 실험을 진행했습니다. 
 1. Attention의 파라메터만 공유: Attention연산 자체는 파라메터가 없는데, 여기서 말하는 Attention의 파라메터는 Multihead-Attention 연산 전에 Q,K,V가 이용하는 Linear layer의 파라메터입니다.
-2. Feedforward의 파라메터만 공유: Transformer에서는 Attention의 결과를 Linear(Feedforward Net)를 이용하여 더 큰차원(*4 * H*)로 늘렸다가 다시 *H* 차원으로 줄이는 Intermediate Layer가 존재하는데, 이 파라메터를 공유합니다.
+2. Feedforward의 파라메터만 공유: Transformer에서는 Attention의 결과를 Linear(Feedforward Net)를 이용하여 더 큰차원(*4 * H*)으로 늘렸다가 다시 *H* 차원으로 줄이는 Intermediate Layer가 존재하는데, 이 파라메터를 공유합니다.
 
 ## 4. Inter-sentence coherence loss
 BERT는 두 가지 loss(Masked LM + Next Sentence Prediction)를 이용하는데, NSP는 pair-sentence단위의 task들(NLI, QA 등)을 위해 고안되었으나 많은 후속 연구들(RoBERTa, XLNet)에서 성능을 해치는 요인으로 지적받았습니다. 그 이유는 다른 도큐먼트에서 랜덤한 segment를 추출하여 negative sample을 만드는 방식에 의해 전혀 관계없는 정보에도 attention이 생겨 noise로 작용하기 때문입니다. 또한 제한된 길이(일반적으로 512) 내에서 서로 관계없는 두 개의 segement를 분리하여 넣는 것보다 최대길이에 맞춰 하나의 segment로 학습(NSP없이)하는 것이 좋은 성능을 보였습니다.
@@ -103,8 +103,8 @@ Factorized Embedding Parameterize, Cross-Layer Parameter Sharing 개별적으로
 
 [Sentence Order Prediction(SOP)](#4-inter-sentence-coherence-loss)의 효과를 검증하기 위해 1) 보조 테스크 없음(RoBERTa, XLNet 설정), 2) NSP(BERT 설정), 3) SOP 3가지 실험을 진행했습니다. 각 설정에 대해 MLM, NSP, SOP 성능을 측정하였습니다. 1)의 경우, 보조의 loss(Auxiliary loss)가 없으므로, NSP, SOP 둘 다 랜덤 선택에 비슷한 결과를 보여줍니다. 2)의 경우 NSP의 성능은 높지만 본 논문에서 지적했듯이, 토픽에 의존해 구분할 확률이 높으므로 SOP은 1)보다 낮은 성능을 보여줍니다.(풀지 못함, random으로 찍는 수준임), 3)의 경우 SOP뿐만 아니라, NSP에서도 (NSP를 objective로 학습하지 않았음에도 불구하고) 준수한 성능을 보여줍니다. 또한 두 개이상의 segment를 포함하는 pair단위의 downstream task들(SQuAD, MNLI, RACE)에서 다른 실험들에 비해 좋은 성능을 보여주었습니다.
 
-### 5.4 Aditional Training Data and Dropout effects
-최신의 연구들(XLNet, RoBERTa)는 pre-training에서 추가적인 데이터의 이용이 downstream-task에서 큰 성능 향상을 이끌어낼 수 있다는 것을 증명했습니다. 저자들은 이와 동일한 설정으로 ALBERT 학습을 진행했습니다.
+### 5.4 Additional Training Data and Dropout Effects
+최신의 연구들(XLNet, RoBERTa)은 pre-training에서 추가적인 데이터의 이용이 downstream-task에서 큰 성능 향상을 이끌어낼 수 있다는 것을 증명했습니다. 저자들은 이와 동일한 설정으로 ALBERT 학습을 진행했습니다.
 
 ![Additional data](/images/ALBERT/additional_data.jpg){: width="100%"}{: .center}
 
@@ -117,7 +117,7 @@ SQuAD를 제외한 모든 테스크에서 성능향상이 있었는데, SQuAD는
 저자들은 ALBERT-xxLarge가 1M step이후에도 overfitting되지 않았기 때문에, 모델의 능력을 조금이라도 더 향상시키기 위해 dropout을 제거했습니다. 위 그래프와 같이 Dropout을 제거함으로써, MLM성능이 크게 향상되었고, Downstream task에서도 성능향상을 보였습니다.
 
 # Review
-BERT 기반으로 NLP가 엄청난 발전을 하고 있는데, 최근에 BERT를 능가했던 방법들 중 XLNet이후로 가장 신선했던 접근법이였던 것 같습니다. 앞으로도 Langauge modeling 및 Auxiliary objective 에 대해 조금 더 다양한 시도들이 이루어지지 않을까 라는 생각이 들었습니다. BERT가 세상에 등장한지 1주년이 지났는데, 앞으로는 생각보다 훨씬 빠르게 발전할 것 같다는 느낌을 받았습니다. 한편으로는 이정도 규모의 연구는 점점 TPU가 없으면 시도조차 할 수 없는 것 같아서 경량화 기법 및 학습 속도에 관한 연구도 지속적으로 이루어질 것 같습니다.
+BERT 기반으로 NLP가 엄청난 발전을 하고 있는데, 최근에 BERT를 능가했던 방법들 중 XLNet이후로 가장 신선했던 접근법이었던 것 같습니다. 앞으로도 Langauge modeling 및 Auxiliary objective 에 대해 조금 더 다양한 시도들이 이루어지지 않을까 라는 생각이 들었습니다. BERT가 세상에 등장한지 1주년이 지났는데, 앞으로는 생각보다 훨씬 빠르게 발전할 것 같다는 느낌을 받았습니다. 한편으로는 이정도 규모의 연구는 점점 TPU가 없으면 시도조차 할 수 없는 것 같아서 경량화 기법 및 학습 속도에 관한 연구도 지속적으로 이루어질 것 같습니다.
 
 
 # Reference
