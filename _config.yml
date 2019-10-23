@@ -23,7 +23,7 @@ url: "https://Baekyeongmin.github.io" # the base hostname & protocol for your si
 logo: images/profile.jpeg # path of site logo, e.g. "/images/logo.png"
 date_format: "%B %-d, %Y"
 read_time: true # reading time estimates, e.g. true
-words_per_minute: 200 # 200
+words_per_minute: 150 # 200
 mathjax: true # MathJax equations, e.g. true
 google_fonts:
   - name: "Source Sans Pro"
