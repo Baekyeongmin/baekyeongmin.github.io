@@ -2,7 +2,7 @@
 title: "Graph Convolutional Networks Review"
 layout: post
 categories:
-  - review
+  - paper-review
 tags:
   - paper
   - nlp
