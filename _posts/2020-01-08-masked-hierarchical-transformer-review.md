@@ -59,6 +59,8 @@ self-attention layer에서 attend할 수 있는 대상은 attention mask($$ M = 
 
 ![attention-mask](/images/HMT/attention_mask.png){: width="80%"}{: .center}
 
+이 조건에 따르면 특정 발화는 부모 뿐만아니라 부모의 부모, 부모의 부모의 부모 등 모든 조상에 attend할 수 있습니다. 이러한 Masking 전략을 사용하면, Masking metrix가 adjacant metrix인 Graph Attention Network과 비슷한 역할을 한다고 볼 수 있습니다.
+
 ## Two-Stage Training
 
 발화 인코더는 pre-trained bert에 의해 초기화 되지만, Masked Transformer는 pre-training이 없습니다. 따라서 두 인코더를 함꼐 학습시킨다면 learning rate에 따라 다음과 같은 문제가 발생할 수 있습니다.
