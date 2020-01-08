@@ -20,6 +20,15 @@ $meta-font-family: $nanum-myeongjo-font-family;
     margin: auto;
 }
 
+li {
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
 @charset "utf-8";
 
 @import "so-simple";
+
+P {
+    margin-block-end: 30px;
+}
