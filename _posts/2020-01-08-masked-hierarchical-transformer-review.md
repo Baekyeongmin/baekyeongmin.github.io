@@ -13,7 +13,7 @@ author: yeongmin
 comments: true
 ---
 
-대화는 문어체(위키피디아, 책 등)와 많은 차이점을 갖고 있습니다. 자주 사용되는 어휘, 어투 등 각 발화의 형태적인 차이뿐만 아니라, 두 명 이상의 화자가 서로 상호작용을 함으로써 생기는 구조에서도 큰 차이가 있습니다. 이전 포스트들에서 살펴봤듯이, Transformer 구조 기반의 Self-supervised learning(BERT) 방식의 학습법이 대부분 NLP 테스크들의 최고 성능(State-of-the-art)를 달성했습니다. 하지만 이러한 방식들은 주로 문어체(위키피디아, 책 등)으로 pre-training이 이루어 졌기 때문에 대화에 바로 적용하기 힘듭니다. 이를 위해 다양한 방법이 제시되었는데요, 본 포스트에서는 pre-trained BERT를 이용하여 대화의 구조를 모델링 하고자 한 ["Who Did They Respond to?
+대화는 문어체(위키피디아, 책 등)와 많은 차이점을 갖고 있습니다. 자주 사용되는 어휘, 어투 등 각 발화의 형태적인 차이뿐만 아니라, 두 명 이상의 화자가 서로 상호작용을 함으로써 생기는 구조에서도 큰 차이가 있습니다. 이전 포스트들에서 살펴봤듯이, Transformer 구조 기반의 Self-supervised learning(BERT) 방식의 학습법이 대부분 NLP 테스크들의 최고 성능(State-of-the-art)를 달성했습니다. 하지만 이러한 방식들은 주로 문어체 데이터로 pre-training이 이루어 졌기 때문에 대화에 바로 적용하기 힘듭니다. 이를 위해 다양한 방법이 제시되었는데요, 본 포스트에서는 pre-trained BERT를 이용하여 대화의 구조를 모델링 하고자 한 ["Who Did They Respond to?
 Conversation Structure Modeling Using Masked Hierarchical Transformer"(AAAI 2020)](https://arxiv.org/abs/1911.10666) 를 리뷰하려고 합니다.
 
 # Main Idea
@@ -54,12 +54,10 @@ self-attention layer에서 attend할 수 있는 대상은 attention mask($$ M = 
 
 - 모든 히스토리 발화는 타겟 발화의 부모 발화 후보이기 때문에, 타겟 발화를 attend할 수 있습니다. 따라서 히스토리 발화들(부모 발화 후보들)은 타겟 발화를 고려하여 자신의 representation을 만들게 됩니다. ($$M_{iL} = 1$$)
 - 모든 발화들은 자기 자신을 attend 할 수 있습니다. ($$M_{ii} = 1$$)
-- 타겟 발화가 아닌 모든 발화들(히스토리 발화들)은 자신의 부모 발화에 attend 할 수 있습니다. 즉, 히스토리 발화들의 대화 구조는 사전에 정해져있습니다.
+- 타겟 발화가 아닌 모든 발화들(히스토리 발화들)은 자신의 조상 발화(부모, 부모의 부모, ...)에 attend 할 수 있습니다. 즉, 히스토리 발화들의 대화 구조는 사전에 정해져있습니다.
 - 위 조건 외에 나머지는 모두 attend할 수 없습니다.
 
 ![attention-mask](/images/HMT/attention_mask.png){: width="80%"}{: .center}
-
-이 조건에 따르면 특정 발화는 부모 뿐만아니라 부모의 부모, 부모의 부모의 부모 등 모든 조상에 attend할 수 있습니다. 이러한 Masking 전략을 사용하면, Masking metrix가 adjacant metrix인 Graph Attention Network과 비슷한 역할을 한다고 볼 수 있습니다.
 
 ## Two-Stage Training
 
