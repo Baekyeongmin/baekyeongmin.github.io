@@ -48,7 +48,7 @@ Conversation Structure Modeling Using Masked Hierarchical Transformer"(AAAI 2020
 
     - Ubuntu IRC: Reddit과 다르게 하나의 발화가 여러 개의 부모 발화를 가질 수 있고, 자기 자신이 부모 발화가 될 수 있습니다. 따라서, 각 히스토리 발화와 타켓 발화(자기 자신이 부모인 경우 때문에)에 대해 독립적으로 reply-to 관계인지 아닌지에 대한 binary classification 문제를 풉니다.
 
-## Ancestor Masking
+## 1. Ancestor Masking
 
 self-attention layer에서 attend할 수 있는 대상은 attention mask($$ M = L \times L$$ 크기의 행렬) 에 의해 결정됩니다. 두 representation 사이에 mask가 0인 경우($$M_{ij}=0$$) attention이 생길 수 없고, 1인 경우($$M_{ij}=1$$) attention이 생길 수 있습니다. 일반적으로 generation model(GPT 등)에서 현제 시점 이후 토큰이나 Padding값에 attention이 가지않게 하기 위해 사용됩니다. 본 논문은 Masked Transformer(두 번째 Transformer)의 연산에서 다음과 같은 전략에 따라 Mask를 만들었습니다.
 
@@ -59,7 +59,7 @@ self-attention layer에서 attend할 수 있는 대상은 attention mask($$ M = 
 
 ![attention-mask](/images/HMT/attention_mask.png){: width="80%"}{: .center}
 
-## Two-Stage Training
+## 2. Two-Stage Training
 
 발화 인코더는 pre-trained bert에 의해 초기화 되지만, Masked Transformer는 pre-training이 없습니다. 따라서 두 인코더를 함꼐 학습시킨다면 learning rate에 따라 다음과 같은 문제가 발생할 수 있습니다.
 - learning rate이 큰 경우: 발화 인코더가 pre-training에서 배웠던 지식들을 잊는다.
@@ -71,12 +71,12 @@ self-attention layer에서 attend할 수 있는 대상은 attention mask($$ M = 
 
 # Experiments
 
-## Dataset
+## 1. Dataset
 1. Raddit Small: Reddit으로 부터 만들어진 데이터로, 타이틀에 달린 댓글과 해당 댓글에 달린 댓글들로 구성됩니다.(이 관계를 통해 relpy-to관계를 형성합니다.) 몇 가지 과정(삭제된 댓글, 최대 댓글 개수)을 통해 데이터를 정제합니다. 상대적으로 관계 그래프가 깊지 않습니다.(주로 그래프가 펴져있는 형태입니다.)
 2. Raddit Large: 위의 문제는 상대적으로 깊지 않은 그래프로 쉬운 문제이기 때문에, 저자들이 원본 Reddit dump로 더 어렵고(최소 깊이를 6으로 제한함) 많은 양의 데이터를 만들었습니다. 
 3. Ubuntu IRC: 이 데이터는 Ubuntu 대화 데이터를 직접 레이블링 하여 만들어졌습니다. Reddit이 각 발화당 하나의 부모 발화를 갖는데 반해, 이 데이터는 하나의 발화에 여러 개의 부모 발화가 존재할 수 있습니다.
 
-## Experiment Setting
+## 2. Experiment Setting
 
 - 발화 인코더: `BERT-base` 와 동일한 설정을 이용했습니다.
     - Transformer Layer 수: 12
@@ -100,7 +100,7 @@ self-attention layer에서 attend할 수 있는 대상은 attention mask($$ M = 
     - Batch size: 32(first-stage), 4(second-stage)
     - 나머지는 Raddit과 동일
 
-## Result
+## 3. Result
 
 **Raddit Corpus** : 다음과 같은 두가지 Metric에 대해 평가를 진행했습니다.
 - Graph Acc: 특정 발화의 부모 발화를 맞추는 정확도
@@ -123,21 +123,21 @@ self-attention layer에서 attend할 수 있는 대상은 attention mask($$ M = 
 
 ubuntu 데이터에 대해서도 위의 그림과 같이 모든 baseline 성능을 뛰어넘는 결과를 보여주었습니다.
 
-## Ablation Study
+## 4. Ablation Study
 
 본 논문에서 제시한 방법들의 효과를 검증하기 위해 raddit-small 데이터를 이용하여 ablation study를 진행했습니다.
 
-### Importance of Mask
+### 4.1. Importance of Mask
 
 제시한 Masking 전략의 효과를 검증하기 위해 모든 발화들에 attend할 수 있도록 mask를 없앤 경우(mask의 모든 값이 1, w/o mask)와 비교를 진행했고, 아래 그림과 같이 Masking 전략을 이용한 경우, 훨씬 높은 결과를 얻을 수 있었습니다. 이는 직관적으로, attention이 모든 발화로 분산되면 학습이 이려워지기 때문입니다. 또한 이 경우 BERT pairwise baseline보다 못한 성능으로, 적절한 masking없이 모든 발화를 모델에게 제공하는 것은 큰 혼동을 준다고 볼 수 있습니다.
 
 ![ablation-mask](/images/HMT/ablation_mask.png){: width="60%"}{: .center}
 
-### Importance of Ancestor Depth
+### 4.2. Importance of Ancestor Depth
 
 본 논문에서는 특정 발화의 모든 조상 발화들(Ancestor, 부모의 부모, 부모의 부모의 부모 ...)을 모두 attend할 수 있도록 Mask를 구성합니다. 또다른 Masking 방식으로 d개의 조상 발화들만 attend 하도록 할 수도 있는데, d에 따라 성능이 어떻게 변하는지 실험을 진행했습니다. raddit-small에서 가장 깊은 깊이는 12이므로 d=1~12까지 실험을 했고, 결과는 아래 그림과 같이 모든 조상을 다 이용할 때가 가장 좋음을 볼 수 있습니다.
 
-### Temporal Mask
+### 4.3. Temporal Mask
 
 또 다른 Masking 방식으로, 대화 구조를 이용하지 않고 특정 발화 기준으로 이전 t개의 발화를 attend하도록 mask를 만들어 실험을 진행했습니다. 아래 그림과 같이 전체적으로 대화 구조를 이용한 경우보다 낮은 성능을 보였고, t가 증가할수록(이전의 더 많은 발화를 볼수록) 미세한 정확도 향상이 있습니다. 따라서 대화 구조에 대한 정보가 큰 영향을 가진다고 볼 수 있습니다.
 
