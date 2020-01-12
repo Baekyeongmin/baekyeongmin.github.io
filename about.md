@@ -17,4 +17,4 @@ Bachelor, Basic of Science *(2015 - Present)*
 
 **Scatterlab**, Machine Learning Software Engineer *(Mar 2019 - Present)*
 
-**Naber Clova AI**, AI Research Intern *(Dec 2018 - Feb 2019)*
+**Naver Clova AI**, AI Research Intern *(Dec 2018 - Feb 2019)*
