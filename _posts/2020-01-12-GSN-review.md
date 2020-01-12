@@ -63,9 +63,9 @@ $$s_i^l = s_i^{l - 1} + \eta \cdot \Delta s_{I \vert i} ^ {l - 1}$$
 
 $$\Delta s_{I \vert i} ^ {l - 1} = \sum\limits_{i'\in \varphi} \Delta s_{I \vert i'} ^ {l - 1}$$
 
-이를 해석해보면 $$l$$번째 iteration에서 발화의 representation은 이전 iteration($$l-1$$번째)의 representation에서 선행 노드로 부터의 정보(첫번 째 식 우변의 두번째 항)를 더하여 만들어집니다. 이 때 선행 노드로 부터의 정보는 두번 째 식과 같이 (선행 노드가 두 개 이상이라면) 모든 선행 노드들 정보의 합을 의미합니다. 위 식에서 $$\varphi$$ 은 새로운 정보를 얼마나 반영할지의 계수로, non-linear "squasing 함수"를 이용하여 다음과 같이 계산합니다.
+이를 해석해보면 $$l$$번째 iteration에서 발화의 representation은 이전 iteration($$l-1$$번째)의 representation에서 선행 노드로 부터의 정보(첫번 째 식 우변의 두번째 항)를 더하여 만들어집니다. 이 때 선행 노드로 부터의 정보는 두번 째 식과 같이 (선행 노드가 두 개 이상이라면) 모든 선행 노드들 정보의 합을 의미합니다. 위 식에서 $$\eta$$ 은 새로운 정보를 얼마나 반영할지의 계수로, non-linear "squasing 함수"를 이용하여 다음과 같이 계산합니다.
 
-$$\varphi = SQH(\Delta s_{I \vert i} ^ {l - 1}) = \frac{\alpha + \Vert \Delta s_{I \vert i} ^ {l - 1} \Vert}{1 + \Vert \Delta s_{I \vert i} ^ {l - 1} \Vert}$$
+$$\eta = SQH(\Delta s_{I \vert i} ^ {l - 1}) = \frac{\alpha + \Vert \Delta s_{I \vert i} ^ {l - 1} \Vert}{1 + \Vert \Delta s_{I \vert i} ^ {l - 1} \Vert}$$
 
 $$\alpha > 0$$는 하이퍼 파라메터로 위 식은 $$\Vert \Delta s_{I \vert i} ^ {l - 1} \Vert$$ 텀이 작으면 $$\alpha$$ 의 값을, 크면 1의 값을 갖게 됩니다. (정보의 양이 많을 수록 많이 반영됩니다.)
 
