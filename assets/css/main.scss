@@ -7,12 +7,17 @@ $serif-font-family: "Lora", serif;
 $sans-serif-font-family: "Source Sans Pro", sans-serif;
 $noto-sans-font-family: 'Noto Sans KR', sans-serif;
 $nanum-myeongjo-font-family: 'Nanum Myeongjo', serif;
+$roboto-font-family: 'Roboto', sans-serif;
 
 $base-font-family: $nanum-myeongjo-font-family;
-$headline-font-family: $nanum-myeongjo-font-family;
-$title-font-family: $serif-font-family;
-$description-font-family: $nanum-myeongjo-font-family;
+$headline-font-family: $noto-sans-font-family;
+$title-font-family: $noto-sans-font-family;
+$description-font-family: $noto-sans-font-family;
 $meta-font-family: $nanum-myeongjo-font-family;
+
+@charset "utf-8";
+
+@import "so-simple";
 
 /* For Image center*/
 .center {
@@ -25,10 +30,25 @@ li {
     margin-bottom: 10px;
 }
 
-@charset "utf-8";
-
-@import "so-simple";
-
 P {
-    margin-block-end: 30px;
+    margin-block-end: 20px;
+}
+
+.entry-title {
+    letter-spacing: 0px;
+    font-style: normal;
+    font-weight: normal;
+}
+
+.page-title {
+    letter-spacing: -1px;
+    font-style: normal;
+    font-weight: normal;
+    font-size: calc(30px + 12 * ((100vw - 320px) / 1500));
+    margin-bottom: 2em;
+}
+
+.site-description {
+    margin-top: 1.0em;
+    font-style: normal;
 }

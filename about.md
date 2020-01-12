@@ -1,18 +1,20 @@
 ---
 layout: page
-title: About
+title: About Me
 permalink: /about/
 ---
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
+**Scatterlab**에서 Machine Learning Software Engieer로 자연어 처리(NLP) 연구/개발을 하고 있습니다. 머신러닝, 자연어 처리 전반 중 특히 일상 대화 시스템(Non- Task-Oriented Conversation System)에 관심이 많습니다. 블로그에는 주로 공부한 내용(논문 리뷰 등)을 기록합니다.
 
-You can find the source code for Minima at GitHub:
-[jekyll][jekyll-organization] /
-[minima](https://github.com/jekyll/minima)
+### Eductation
 
-You can find the source code for Jekyll at GitHub:
-[jekyll][jekyll-organization] /
-[jekyll](https://github.com/jekyll/jekyll)
+**DGIST**
+Bachelor, Basic of Science *(2015 - Present)*
 
+- 산업기능요원 복무 중입니다.(휴학)
 
-[jekyll-organization]: https://github.com/jekyll
+### Work Experience
+
+**Scatterlab**, Machine Learning Software Engineer *(Mar 2019 - Present)*
+
+**Naber Clova AI**, AI Research Intern *(Dec 2018 - Feb 2019)*
