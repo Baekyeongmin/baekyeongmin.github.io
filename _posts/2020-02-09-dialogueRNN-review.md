@@ -7,7 +7,7 @@ tags:
   - nlp
   - ERC
   - AAAI 2019
-last_modified_at: 2020-01-18T20:53:50-05:00
+last_modified_at: 2020-02-19T20:53:50-05:00
 author: yeongmin
 comments: true
 ---
@@ -54,7 +54,7 @@ CMN과 동일하게 3D-CNN(Visual), openSMILE(Audio)을 이용하여, feature ex
 
 ### 2.1 Global State(Global GRU)
 
-Global State는 [Unimodal Feature Extraction](#1-unimodal-feature-extraction)에서 만들어진 특정 시점 $$t$$ 발화의 feature($$u_t$$)와 해당 발화를 한 화자의 이전 party state($$q_{s(u_t),t-1}$$)를 이용해, 주어진 발화의 컨텍스트를 모델링합니다. 
+Global State는 [Unimodal Feature Extraction](#1-unimodal-feature-extraction)에서 만들어진 특정 시점 $$t$$ 발화의 feature($$u_t$$)와 해당 발화를 한 화자의 이전 party state($$q_{s(u_t),t-1}$$)를 이용해, 주어진 발화의 컨텍스트를 모델링합니다.
 
 $$g_t = GRU_G(g_{t-1}, (u_t \oplus q_{s(u_t),t-1}))$$
 
