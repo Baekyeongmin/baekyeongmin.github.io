@@ -38,7 +38,7 @@ comments: true
 - [Sounding board(2017년 우승)](https://m.media-amazon.com/images/G/01/mobile-apps/dex/alexa/alexaprize/assets/pdf/2017/Soundingboard.pdf)
 - [Gunrock(2018년 우승)](https://m.media-amazon.com/images/G/01/mobile-apps/dex/alexa/alexaprize/assets/pdf/2018/Gunrock.pdf)
 
-다음으로 Microsoft 사의 AI 챗봇 “샤오빙”, “린나”를 만든 XioIce의 [테크니컬 리포트](https://arxiv.org/pdf/1812.08989.pdf)를 리뷰하려고 합니다. 이 챗봇은 전 세계에서 가장 유명하고, 많이 사용되고 있습니다.(660M의 active user를 보유) 유저 및 CPS 수치가 증명하듯이 본 논문의 방법론은 사람 이상의 매력을 가지고 있다고 볼 수 있습니다. 이 리뷰에서는 XioIce가 어떻게 사람과의 “관계”를 잘 발전시켜나갈 수 있었는지에 집중하고자 합니다. 가능하면 레퍼런스까지 깊게 파고들어 리뷰할 예정입니다.
+다음으로 Microsoft 사의 AI 챗봇 “샤오빙”, “린나”를 만든 XioIce의 [테크니컬 리포트](https://arxiv.org/pdf/1812.08989.pdf)를 리뷰하려고 합니다. 이 챗봇은 전 세계에서 가장 유명하고, 많이 사용되고 있습니다.(660M의 엑티브 유저를 보유) 유저 및 CPS 수치가 증명하듯이 본 논문의 방법론은 사람 이상의 매력을 가지고 있다고 볼 수 있습니다. 이 리뷰에서는 XioIce가 어떻게 사람과의 “관계”를 잘 발전시켜나갈 수 있었는지에 집중하고자 합니다. 가능하면 레퍼런스까지 깊게 파고들어 리뷰할 예정입니다.
 
 ## 마무리
 
