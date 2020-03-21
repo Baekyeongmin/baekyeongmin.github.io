@@ -12,7 +12,7 @@ comments: true
 
 이전 글에서 Alexa Prize에 대해 간단하게 살펴봤는데, 이 글에서는 Socialbot challenge 2017의 우승작 [Sounding Board – University of Washington’s Alexa Prize Submission](https://m.media-amazon.com/images/G/01/mobile-apps/dex/alexa/alexaprize/assets/pdf/2017/Soundingboard.pdf)을 리뷰해보려고 합니다.
 
-# Sounding Board
+# Introduction
 
 - Alexa Prize는 봇이 유저가 선택한 특정 주제에 대해 토론하는 챌린지임 -> 이전의 open-domain chatbot들은 주어진 context에 "적절한" 답을 하는 것을 목적으로 하는 chit-chat에 가까웠음. 하지만 Sounding board에서는 이를 컨텐츠(정보)와 유저의 흥미에 따라 대답을 생성하는 task-oriented 문제로 다루고자 했음.
 
@@ -34,5 +34,21 @@ comments: true
     - data-driven한 학습에 있어서 더 많은 데이터가 생겼을 때, 각 요소를 업데이트 하는 것이 용이해짐.
 
     발화 생성 전략또한 다양한 종류의 speech act를 위한 구성 요소들로 모듈화 되어 있음. 유의미한 대화를 축적하기 위해, 몇몇 생성 모듈은 다양성한 답변을 생성하는 랜덤성이 추가되어 있음.
+
+
+# System Architecture
+
+프론트 엔드, 미들 엔드, 백 엔드로 구성되며, 이 들 또한 각각의 세부 구성요소들로 나눠지는 모듈화된 구조임.
+
+- 프론트 앤드: Sounding Board는 Alexa Skill Kit(ASK)에 포함된 음성 인식(Speech Recognition), 텍스트-음성 변환(TTS)을 통해 유저와 소통함.
+
+- 미들 엔드(AWS Lambda 서비스 이용): 크게 Natural language understanding(NLU), Dialogue management(DM), Natural language generation(NLG) 세개의 주요 시스템 모듈로 구성됨. 각 모듈에서 백 엔드를 이용함.
+
+- 백 엔드: 파싱 서비스를 제공하는 스탠퍼드 CoreNLP, 토픽으로 인덱싱된 컨텐츠가 저장되어 있는 AWS DynamoDB, QA, 조크 서비스를 위한 Evi.com 등으로 구성되며, 미들 엔드와 소통함.
+
+## Natural language understanding
+
+유저의 발화로 부터 화자의 의도 혹은 목적, (잠재적인) 토픽, 감정, 스텐스 등 여러 타입의 정보들을 추출하는 모듈임. 이는 위의 표와 같이 크게 5개의 attribute로 구성됨.
+
 
 
