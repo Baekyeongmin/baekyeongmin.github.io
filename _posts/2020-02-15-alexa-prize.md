@@ -4,7 +4,7 @@ layout: post
 categories:
   - competition
 tags:
-  - dialogue
+  - 글또 4기, dialogue
 last_modified_at: 2020-02-15T20:53:50-05:00
 author: yeongmin
 comments: true
