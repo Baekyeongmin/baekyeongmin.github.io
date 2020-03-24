@@ -111,4 +111,18 @@ comments: true
   - 테스트 유저에게 자극을 줄 수 있는 명확한 확인을 최소화합니다.
   - instruction act는 dialogue state나 error detection에 따른 도움 메세지 입니다.
 
-  
+# Natural Language Generation
+
+speech act과 컨텐츠를 입력으로 받아 반응을 생성한다. 반응은 4개의 큰 종류 중 최대 세개의 speech act를 포함할 수 있다. Amazon TTS API의 요구사항대로, 반응은 message와 reprompt로 구성됨. 장치는 항상 message를 읽음, reprompt는 장치가 주어진 기간동안 아무것도 듣지 못했을 때, 옵셔널하게 사용됨. grounding act는 주로 반응의 시작에 위치하고, instruction은 repromt에 위치함.
+
+grounding act는 특정 카테고리와 관련된 구절/문장들의 모음들 중 랜덤으로 선택된다. back-channeling("I see", "Cool"), user request echoing ("Looks like you want to talk about news"), misunderstanding apology (e.g., “Sorry, I’m having trouble understanding what you said.”), unanswerable user follow-up questions (e.g. “I’m sorry. I don’t remember the details."), and gratitude (e.g., “I’m happy you like it.”).
+
+inform act는 시작 구절과 DM에 의해 제공된 컨텐츠를 결합한 간단한 템플릿에 의해 구성된다.
+
+request act는 유저의 입력을 요청하는 slot-level의 변형의 형태로 구성된다.
+
+instruction act는 변형이 적은 상황에 맞는 도움말 메시지 모음으로 구성된다.
+
+발음을 보다 정확하게 전달하기 위해 ASK SSML을 활용하여 발음함.
+
+마지막으로 욕설 단어/구절을 비 공격적인 단어로 대체하는 발화 정화기를 통과함.
