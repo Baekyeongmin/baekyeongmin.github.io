@@ -10,78 +10,77 @@ author: yeongmin
 comments: true
 ---
 
-이전 글에서 Alexa Prize에 대해 간단하게 살펴봤는데, 이 글에서는 Socialbot challenge 2017의 우승작 [Sounding Board – University of Washington’s Alexa Prize Submission](https://m.media-amazon.com/images/G/01/mobile-apps/dex/alexa/alexaprize/assets/pdf/2017/Soundingboard.pdf)을 리뷰해보려고 합니다.
+이전 글에서 Alexa Prize에 대해 간단하게 살펴봤는데, 이 글에서는 Socialbot challenge 2017의 우승작 [Sounding Board – University of Washington’s Alexa Prize Submission](https://m.media-amazon.com/images/G/01/mobile-apps/dex/alexa/alexaprize/assets/pdf/2017/Soundingboard.pdf)을 리뷰해보려고 합니다. 이전의 open-domain 대화 시스템은 주어진 컨텍스트에 대해 "적절한", "말이 되는" 답을 하는 것을 목적으로 하는 *chit-chat*에 가까웠습니다. 하지만 Alexa Przie는 소셜봇이 유저가 선택한 특정 주제에 대해 대화를 진행하는 챌린지 이기 때문에, Sounding Board 팀은 컨텐츠(정보)와 유저의 흥미를 집중적으로 고려하여 대답을 생성하는 *task-oriented* 문제로 다루었습니다. 특히 워싱턴대 팀은 본 대회 이전에 만들어 두었던 대화 시스템이 없었고 뉴럴넷을 학습시킬 데이터도 없었기 때문에, 초기 시스템은 간단한 rule-base로 구성되어 밑바닥 부터 시작했습니다. 실 유저와의 대화를 경험하고 이를 통해 데이터를 축적함으로써, 구조는 복잡해졌고 각 구성요소는 머신러닝을 사용하는 방향으로 발전했습니다. 논문에서는 최종 제출한 결과물을 다룹니다.
 
-# Introduction
+# 1. Design Philosophy
 
-- Alexa Prize는 봇이 유저가 선택한 특정 주제에 대해 토론하는 챌린지임 -> 이전의 open-domain chatbot들은 주어진 context에 "적절한" 답을 하는 것을 목적으로 하는 chit-chat에 가까웠음. 하지만 Sounding board에서는 이를 컨텐츠(정보)와 유저의 흥미에 따라 대답을 생성하는 task-oriented 문제로 다루고자 했음.
+Sounding Board의 디자인 철학은 대화 전략 및 시스템 엔지니어링에 반영되어 있습니다. 대회를 진행하면서 얻을 수 있는 사용자 피드백은 시스템 구조 결정에 있어서 큰 영향을 미쳤습니다. 대화 전략은 다음과 같이 두 개의 특징을 갖습니다.
 
-- UW 팀은 본 대회를 밑바닥 부터 시작했음. 당시 사전에 만들어 두었던 대화 시스템이 없었고, 뉴럴넷을 학습시킬 수 있는 데이터도 없었음. 결과적으로 Sounding Board는 대회가 진행됨에따라 점진적으로 향상되어 갔음. 초기 시스템은 거의 rule-base로 구성 -> 실 유저와의 대화를 경험하고, 이를 통해 대화 데이터를 축적함으로써, 구조는 더 복잡해졌고, 이를 구성하는 요소들은 ML을 사용하도록 변경되어 갔음. (논문에서는 최종 결과물을 다루고자 함.)
+- `contents driven`: 유저가 알지 못하거나 들어보지 못했을 관점의 정보를 제공하고, 이를 통해 유저를 사로잡고자 했습니다. 따라서 정보 검색(Information retrieval)의 중요성이 높고, 다양한 범위의 토픽, 유저의 흥미를 다룰 수 있도록 여러 개의 정보 소스를 이용했습니다. *chit-chat*은 일부 포함되어 있으나 주로 대화를 부드럽게 진행시키는 역할을 수행합니다.
+- `user driven`: 유저 발화의 감정, 태도, 의도 등을 다차원 표현으로 나타내고, 성격 퀴즈, 불만 감지 등을 통해 사용자의 상태를 지속적으로 인식하고, 대화를 진행하고자 했습니다.
 
-- Sounding Board의 디자인 철학은 대화 전략과 시스템 엔지니어링에 반영되어 있음.
+시스템 엔지니어링 전략은 여러개의 컨텐츠 소스들을 적절히 이용하고자 했던 점, 학습을 위한 적절한 대화 데이터가 부족한점이 주로 고려되었습니다. (따라서 end-to-end generation 시스템 등은 시도하지 않았음) 이에 따라 계층적이고 모듈화된 구조를 통해 대화 관리를 하는 전략을 선택했습니다. 이러한 구조 덕분에 새로운 능력을 추가하고 기존의 기능을 업데이트하는 것이 쉬워 확장성이 커졌습니다. 발화 생성 또한 모듈화 되어있어, 여러 모듈들이 speech act에 따라 반응을 생성합니다. 이 때, 몇몇 생성 모듈에는 여러가지 변형들 중 답변 형식을 선택하는 랜덤성을 부여하여 대화의 단조로움을 피하고, 유의미한 대화를 축적하도록 의도했습니다.
 
-    대화의 전략은 두개의 피쳐로 구성.
+# 2. System Architecture
 
-    - contents driven: 유저가 알지 못하거나 들어보지 못했을 관점의 정보를 제공함으로써 유저를 사로잡고자 했음. -> 정보 검색이 시스템에서 중요한 역할을 함. 다양한 범위의 토픽, 유저의 흥미를 커버하기 위해 여러 정보 소스를 이용했음.
-    - user driven: 시스템은 토픽의 선택, 인터렉션 전략 등을 조정하기 위해, 유저의 상태를 트래킹함.
-        - 유저 발화의 감정, 스탠스(태도, 입장), 의도 등의 다차원 표현으로 나타냄.
-        - 토픽 선택을 위해 성격 퀴즈를 이용함.
-        - 사용자의 불만을 감지하여 토픽을 변경함.
-    - 대회를 진행하면서 얻은 테스트 유저의 피드백, 유저 행동 분석은 아키텍쳐 결정에 많은 영향을 미침.
+![architecture](/images/sounding_board/architecture.png){: width="100%"}{: .center}
 
-    시스템 엔지니어링 전략은 학습을 위한 적절한 대화 데이터의 부족과 여러개의 컨텐츠 소스들을 이용하고자 하는 계획이 주로 고려되었음. 이에 따라 모듈화된 구조를 통한 계층적인 대화 관리를 하는 전략을 선택했음.
-    - 이러한 구조는 새로운 능력이 개발되었을 때, 상대적으로 간단하게 추가할 수 있음. -> 더 많은 기술을 처리 할 수 있도록 쉽게 확장할 수 있음.
-    - data-driven한 학습에 있어서 더 많은 데이터가 생겼을 때, 각 요소를 업데이트 하는 것이 용이해짐.
+위 그림과 같이 프론트 엔드, 미들 엔드, 백 엔드로 구성되며, 이들 또한 각각의 세부 구성 요소들로 나눠지는 모듈화된 구조입니다.
 
-    발화 생성 전략또한 다양한 종류의 speech act를 위한 구성 요소들로 모듈화 되어 있음. 유의미한 대화를 축적하기 위해, 몇몇 생성 모듈은 다양성한 답변을 생성하는 랜덤성이 추가되어 있음.
+- 프론트 앤드: 유저와 소통하는 부분으로, Sounding Board는 Alexa Skill Kit(ASK)에 포함된 음성 인식(Automatic Speech Recognition - ASR), 텍스트-음성 변환(Text-to-Speech TTS)을 이용합니다.
 
+- 미들 엔드(AWS Lambda 서비스 이용): 다양한 대화 전략을 가지고 유저의 발화에 대한 반응을 생성하는 부분으로, 크게 Natural language understanding(NLU), Dialogue management(DM), Natural language generation(NLG) 3개의 주요 시스템 모듈로 구성됩니다. 각 모듈에서 필요시 백앤드와 통신합니다.
 
-# System Architecture
+- 백 엔드: 각 대화 전략에서 이용할 수 있는 데이터와 정보를 제공하는 부분으로, 파싱 서비스를 제공하는 스탠퍼드 CoreNLP, 토픽으로 인덱싱된 컨텐츠가 저장되어 있는 AWS DynamoDB, QA, 조크 서비스를 위한 Evi.com 등으로 구성됩니다.
 
-프론트 엔드, 미들 엔드, 백 엔드로 구성되며, 이 들 또한 각각의 세부 구성요소들로 나눠지는 모듈화된 구조임.
+대화가 진행되는 과정은 다음과 같습니다.
+1. 유저가 말을 하면 ASR의 인식 내용, [Voice User Interface](https://developer.amazon.com/en-US/alexa/alexa-skills-kit/vui)의 결과를 얻습니다.
+2. 이 정보들과 현재의 dialogue state를 바탕으로 NLU가 DM의 입력으로 이용될 `입력 프레임`을 만듭니다.
+3. DM은 이 프레임을 이용하여 대화 전략을 실행하여 Speech act와 컨텐츠를 결정하고, dialogue state를 업데이트 합니다. 
+4. NLG모듈은 DM의 결과물들을 이용해 반응을 생성하고, ASK에 반환합니다.
 
-- 프론트 앤드: Sounding Board는 Alexa Skill Kit(ASK)에 포함된 음성 인식(Speech Recognition), 텍스트-음성 변환(TTS)을 통해 유저와 소통함.
+## 2.1. Natural language understanding
 
-- 미들 엔드(AWS Lambda 서비스 이용): 크게 Natural language understanding(NLU), Dialogue management(DM), Natural language generation(NLG) 세개의 주요 시스템 모듈로 구성됨. 각 모듈에서 백 엔드를 이용함.
+![input_frame](/images/sounding_board/input_frame.png){: width="80%"}{: .center}
 
-- 백 엔드: 파싱 서비스를 제공하는 스탠퍼드 CoreNLP, 토픽으로 인덱싱된 컨텐츠가 저장되어 있는 AWS DynamoDB, QA, 조크 서비스를 위한 Evi.com 등으로 구성되며, 미들 엔드와 소통함.
+프론트에서 제공되는 정보들로 부터 화자의 **발화를 이해**하고 의도 혹은 목적, (잠재적인) 토픽, 감정, 스텐스 등 여러 타입의 정보들을 추출하여 `input frame`으로 만드는 모듈입니다. 이는 위의 표와 같이 크게 5개의 attribute로 구성됩니다.
 
-## Natural language understanding
+문어체에서는 [Ganeral Language Understanding Evaluation(GLUE)](https://gluebenchmark.com) 등 자연어 이해 관련 테스크들이 비교적 잘 정리되어 있지만, 대화체에서는 여전히 정의되지 않은 테스크들이 많고 분산되어 있는것 같습니다. 본 논문에서도 아래와 같이 주어진 환경에 맞춰 여러 NLU 피쳐들을 정의하고 이를 통해 발화를 표현하고자 했습니다.
 
-유저의 발화로 부터 화자의 의도 혹은 목적, (잠재적인) 토픽, 감정, 스텐스 등 여러 타입의 정보들을 추출하는 모듈임. 이는 위의 표와 같이 크게 5개의 attribute로 구성됨.
+**입력**: 프론트 엔드의 ASK로 부터 얻을 수 있는 정보들입니다.
+1. **`ASR hypotheses`**: Autometic Speech Recognition 모듈의 결과
+2. **`VUI output`**: [Voice User Interface](https://developer.amazon.com/en-US/alexa/alexa-skills-kit/vui) 의 결과
+3. **`Dialogue State`**: 현재 까지 저장된 대화의 상태(대화가 진행됨에 따라 DM에서 지속적으로 업데이트 됨.)
 
-- 입력: ASR hypotheses, VUI output, Dialogue State
-  - ASR: Autometic Speech Recognition 모듈
-  - VUI: [Voice User Interface](https://developer.amazon.com/en-US/alexa/alexa-skills-kit/vui)
-  - Dialogue State
+**출력**: 위 입력으로 5개 타입의 정보를 추출하여 `input frame`을 만듭니다.
 
-위 입력으로 5개 타입의 정보를 추출함. 이는 후속 모듈들에서 이용됨
-- primary intent
-  - 유저 발화의 의도를 22개로 구분하는데, 이는 다양한 대화 전략들에서 이용됨.
-  - 크게 contents retrieval commands, nevigation commands, common Alexa commands, converse intent의 4종류로 구분
-  - contents retrieval commands: popular topics, facts, opinions, jokes, general news, sports news, personality quiz, question answers, unspecified의 9 종류가 있음. 컨텐츠를 요구하는 발화가 들어왔을 때 이 intent로 메핑되는듯
-  - navigation commands: human-to-mahcine 대화이기 때문에 필요한 help, repeat, next, cancel 등의 명령
-  - standard Alexa command: Alexa가 지원하는 기능에 대한 명령, 8개의 Amazon의 built-in intents "음악 켜줘", "책 읽어줘" 등의 발화에 해당됨. -> Sounding Board는 이에 대한 권한이 없기 때문에, 이러한 command가 감지되면 제약사항과 지침에 대해 응답함.
-  - converse intent: 위의 command들이 아닌 나머지 모든 발화들에게 할당하는 intent, 일반적으로 일상대화에서 이용되는 informing, decision/answer, expressing opinions/feelings, asking questions, 등이 해당함. 이 의도들 중 대부분은 이전 턴들을 참조한다는 점에서 컨텍스트 또한 의존관계가 있음.
+1. **`primaryIntent`**
+  - DM의 대화 전략을 결정하는데 사용하기 위해, 유저 발화의 의도를 22개로 구분합니다. 
+  - 크게 `contents retrieval commands`, `nevigation commands`, `common Alexa commands`, `converse intent`의 4종류로 구분됩니다.
+  - `contents retrieval commands`: `popular topics`, `facts`, `opinions`, `jokes`, `general news`, `sports news`, `personality quiz`, `question answers`, `unspecified`의 9종류가 있습니다. 유저의 발화가 특정 컨텐츠를 요구할 때 컨텐츠의 종류에 따라 이 중 하나로 매핑됩니다.
+  - `navigation commands`: 인간과 봇의 대화이기 때문에, 사용자가 봇에게 명령을 내릴 수 있는데,`help`, `repeat`, `next`, `cancel` 등이 해당됩니다. 
+  - `standard Alexa command`: Alexa가 기본적으로 지원하는 기능에 대한 명령입니다. 8개의 Amazon의 built-in 의도들("음악 켜줘", "책 읽어줘" 등의 발화)에 해당됩니다. Sounding Board는 이에 대한 권한이 없기 때문에, 이러한 커멘드가 감지되면 제약사항과 지침에 대해 응답합니다.
+  - `converse intent`: 위의 커멘드들이 아닌 나머지 모든 발화들에게 할당하는 의도입니다. 일반적으로 일상대화에서 이용되는 `informing`, `decision/answer`, `expressing opinions/feelings`, `asking questions`, 등이 해당합니다. 이 의도들 중 대부분은 이전 턴들을 참조해야 하기 때문에, 컨텍스트 또한 의존관계가 있습니다.
 
-- question type
-  - 다양한 유저 대화를 분석해본 결과, 대부분의 질문은 4가지 유형 중 하나로 매핑된다는 것을 보여주었음. 이들은 각각 DM에서 다른 전략으로 다뤄짐.
-  - command: 정중한 방식(질문 형태의) 명령, "우리 Mars mission에 대해 이야기 해볼까?"
-  - backstory/ personal question: socialbot의 페르소나에 관한 질문 - 이름, 생일, 취미 등등
-  - factual quesion: 사실에 근거한 명확한 답이 있는 질문 "미국의 대통령은 누구야?"
-  - question on sensitive topics, advice questions: 성이나 폭력성, 마약 등에 관련된 질문, "내가 어떤 주식을 사야할까?" 등의 어려운 질문 -> socialbot으로써, 대답하기 민감하거나 할 수 없는 질문들에 대한 타입인듯
+2. **`questionType`**
+  - 유저 발화의 질문 종류입니다. 저자들은 다양한 유저 대화 분석을 통해, 대부분을 질문은 4가지 유형 중 하나로 대응시킬 수 있다는 결론을 내렸습니다. 이들은 DM에서 각각 다른 전략으로 다뤄집니다.
+  - `command`: 정중한 방식(질문 형태의) 명령입니다. - "우리 Mars mission에 대해 이야기 해볼까?"
+  - `backstory/ personal question`: socialbot의 페르소나에 관한 질문입니다. - 이름, 생일, 취미 등등
+  - `factual quesion`: 사실에 근거한 명확한 답이 있는 질문입니다. - "미국의 대통령은 누구야?"
+  - `question on sensitive topics, advice questions`: socialbot이 대답하기 민감하거나 할 수 없는 성이나 폭력성, 마약 등에 관련된 질문들과 "내가 어떤 주식을 사야할까?" 등의 어려운 질문입니다.
 
-- candidate topics: 모든 명사구 토픽이 될 수 있음. 문장 내의 모든 명사구를 후보 토픽에 저장하고, 적절하지 못한 토픽("this", "yep", "something" 등)과 민감한 토픽을 제거합니다.
+3. **`candidateTopics`**: 토픽의 후보들입니다. 모든 명사구가 토픽이 될 수 있다고 가정하고, 파싱 결과에서 모든 명사구를 저장합니다. 그 후에 적절하지 못한 토픽("this", "yep", "something" 등)과 민감한 토픽을 제거합니다. 토픽의 다양화를 위해 `primaryTopic` 에 대한 컨텐츠 부족 등의 문제에 대응하기 위해 후보들을 유지합니다.
 
-- primary topic: VUI에서 인식된 토픽이 있다면 해당 토픽이 선택됨. 그 외의 경우, 가장 긴 명사구가 선택됨.
+4. **`primaryTopic`**: 대화의 주 토픽입니다. `VUI`에서 인식된 토픽이 있다면 해당 토픽이 선택됩니다. 그 외의 경우, 가장 긴 명사구가 선택됩니다. 
+  - *긴 명사구일 수록 구체적인 토픽일 것이고, 주 토픽일 가능성이 높을 수 있지만 각 명사구의 의미와 관계 없이 길이로만 결정하기 때문에 나이브한 접근인 것 같습니다. 그러나 2017년이라 만족스러운 기술이 없었거나, 이 방법으로도 충분히 잘되었기 때문에 이 방법을 이용했을 수도 있을 것 같습니다.*
 
-- user reaction: socialbot이 컨텐츠를 제공했을 때, 유저들은 가끔 커멘트에서 감정을 표현하거나 긍정 혹은 부정적인 스텐스로 반응할 수 있음. 3개의 리엑션 분류기를 갖고 있음.(각 분류기는 리엑션의 특정 차원에 대해 집중함.)
-  - 확인에 대한 사용자의 반응: 승인, 거부, 확실하지 않음, null
-  - 의견적인 부분에서 유저의 스텐스: 동의, 동의하지 않음, 확실하지 않음, null
-  - fake나 joke에 대한 사용자의 감정: 호/불호, neutral, null
-  - null은 classifier의 컨텍스트와 일치하지 않는 경우에 매핑됨, 확인 질문이 아닌경우 1은 Null, 인식기가 오류인 경우 등
+5. **`userReaction`**: 소셜봇이 컨텐츠를 제공했을 때, 유저들은 이에 대한 답변(리엑션)에서 감정을 표현하거나 긍정 혹은 부정적인 스텐스로 반응할 수 있습니다. 리엑션을 3개의 차원으로 나누가 각 차원의 정도를 분류하는 3개의 리엑션 분류기를 만들었습니다.
+  - 확인에 대한 사용자의 반응: 승인, 거부, 확실하지 않음, `null`
+  - 의견적인 부분에서 유저의 스텐스: 동의, 동의하지 않음, 확실하지 않음, `null`
+  - fake나 joke에 대한 사용자의 감정: 호/불호, neutral, `null`
+  - `null`은 classifier의 컨텍스트와 일치하지 않는 경우에 매핑됩니다. - 확인 질문이 아닌경우 첫번째 분류기는 `null`, 인식기가 오류인 경우 등
 
-## Dialogue management
+## 2.2. Dialogue management
 
 - 계층적 구조의 state-based 대화 모델을 사용함. state는 이산적인 상호작용 타입, personality quiz의 결과, 이전에 다뤄졌던 컨텐츠에 대한 기억 등임
 - 대화를 전체적으로 관리하는 master processing sequence + 대화 시그먼트를 다루는 miniskills(conversation mode)
