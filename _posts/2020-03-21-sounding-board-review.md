@@ -103,29 +103,28 @@ DM은 계층적 구조의 state-based 대화 모델입니다. 여기서 state는
 
 # Natural Language Generation
 
-speech act과 컨텐츠를 입력으로 받아 반응을 생성한다. 반응은 4개의 큰 종류 중 최대 세개의 speech act를 포함할 수 있다. Amazon TTS API의 요구사항대로, 반응은 message와 reprompt로 구성됨. 장치는 항상 message를 읽음, reprompt는 장치가 주어진 기간동안 아무것도 듣지 못했을 때, 옵셔널하게 사용됨. grounding act는 주로 반응의 시작에 위치하고, instruction은 repromt에 위치함.
+NLG는 speech act과 컨텐츠를 입력으로 받아 반응을 생성하는 모듈입니다. 반응은 4개의 큰 종류 중 최대 세개의 speech act를 포함할 수 있습니다. Amazon TTS API의 요구사항대로, 반응은 `message`와 `reprompt`로 구성되어야 합니다. 장치는 항상 `message`를 읽는데, `reprompt`는 장치가 주어진 기간동안 아무것도 듣지 못했을 때 옵셔널하게 사용됩니다. grounding act는 주로 반응의 시작에 위치하고, instruction은 repromt에 위치합니다.
 
-grounding act는 특정 카테고리와 관련된 구절/문장들의 모음들 중 랜덤으로 선택된다. back-channeling("I see", "Cool"), user request echoing ("Looks like you want to talk about news"), misunderstanding apology (e.g., “Sorry, I’m having trouble understanding what you said.”), unanswerable user follow-up questions (e.g. “I’m sorry. I don’t remember the details."), and gratitude (e.g., “I’m happy you like it.”).
+- `grounding` act의 반응을 생성할 때에는 다음과 같이 세부 카테고리와 관련된 구절/문장들의 모음들 중 랜덤으로 반응을 선택합니다. 
+  - `back-channeling`: "I see", "Cool"
+  - `user request echoing`: "Looks like you want to talk about news"
+  - `misunderstanding apology` “Sorry, I’m having trouble understanding what you said.”
+  - `unanswerable user follow-up questions`: “I’m sorry. I don’t remember the details."
+  - `gratitude` “I’m happy you like it.”
+- `inform` act는 시작 구절(“Someone on Reddit said”, “My friend in the cloud told me that” 등)과 DM에 의해 제공된 컨텐츠를 결합한 간단한 템플릿에 의해 반응이 구성됩니다.
+- `request` act는 유저의 입력을 요청하는 slot-level의 변형의 형태로 구성됩니다.
+- `instruction` act는 변형이 적고 상황에 맞는 도움말 메시지 모음으로 구성된다.
 
-inform act는 시작 구절과 DM에 의해 제공된 컨텐츠를 결합한 간단한 템플릿에 의해 구성된다.
+이렇게 만들어진 반응은 발음을 보다 정확하게 전달하기 위해 ASK SSML을 활용하며, 마지막으로 욕설 단어/구절을 비 공격적인 단어로 대체하는 발화 정화기를 거칩니다.
 
-request act는 유저의 입력을 요청하는 slot-level의 변형의 형태로 구성된다.
+# 3. Miniskills
 
-instruction act는 변형이 적은 상황에 맞는 도움말 메시지 모음으로 구성된다.
+Sounding Board는 여러 개의 다른 miniskill들을 갖고 있는데 이들은 dialogue state를 관리하고, 대화 시그먼트의 일관성을 책임집니다.
 
-발음을 보다 정확하게 전달하기 위해 ASK SSML을 활용하여 발음함.
+## 3.1. content-oriented miniskills
 
-마지막으로 욕설 단어/구절을 비 공격적인 단어로 대체하는 발화 정화기를 통과함.
-
-# Miniskills
-
-Sounding Board는 몇몇의 다른 miniskill들을 갖고 있는데 이들은 dialogue state를 관리하고, 대화 시그먼트의 일관성을 책임진다.
-
-## content-oriented miniskills
-
-컨텐츠 수집과 관리는 성공적인 content-oriented miniskill을 구현하기 위해 중요한 두 단계입니다. 여러 소스(Amazon이 제공하는 트렌딩 토픽, Reddit으로 부터 생성된 컨텐츠, 뉴스 기사, QA, joke)로부터 컨텐츠를 얻음.
-
-몇몇의 다른 miniskill들을 구현함.(트랜딩 토픽, 사실, 의견, 일반적인 뉴스, 스포츠 뉴스, 조크, QA) 특정 소스는 넓은 관심사의 뉴스 혹은 논평을 제공하고 스타일은 대화에 적절하기 때문에 선택됨. 개별적인 대화는 상대적으로 짧아야 하므로, 정보력이 있고, 이해기에 적은 컨택스트를 요구하는 정보들을 쉽게 추출할 수 있는 소스를 선택했음. 욕설, 불쾌한 주제를 필터링
+Sounding Board에는 컨텐츠에 기반한 몇몇의 다른 미니스킬들이 구현되어 있습니다. (트랜딩 토픽, 사실, 의견, 일반적인 뉴스, 스포츠 뉴스, 조크, QA) 
+컨텐츠 수집과 관리는 성공적인 content-oriented miniskill을 구현하기 위해 중요한 두 단계입니다. 여러 소스(Amazon이 제공하는 트렌딩 토픽, Reddit으로 부터 생성된 컨텐츠, 뉴스 기사, QA, joke)로부터 컨텐츠를 얻습니다. 소스는 대화채에 맞는가와 충분히 정보력이 있는지, 넓은 관심사의 뉴스 혹은 논평을 제공하고 있는지, 정보를 이해하기 위해 적은 컨텍스트를 요구하는지, 쉽게 추출할 수 있는지 등의 기준으로 선택되었습니다. 이렇게 모인 컨텐츠들 중욕설, 불쾌한 주제는 필터링 됩니다.
 
 - Tranding topics: 유저가 선택할 수 있는 토픽을 추천함. Amazon에 의해 제공됨.
 - Facts: TodayILearned 라는 subreddit에는 흥미로운 사실들이 많이 올라옴 이 포스트의 제목들에 등장하는 토픽들로 인덱싱을 진행했음.
