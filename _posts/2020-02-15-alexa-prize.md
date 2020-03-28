@@ -2,7 +2,7 @@
 title: "Alexa Prize 둘러보기"
 layout: post
 categories:
-  - competition
+  - alexa-prize
 tags:
   - 글또 4기, dialogue
 last_modified_at: 2020-02-15T20:53:50-05:00
