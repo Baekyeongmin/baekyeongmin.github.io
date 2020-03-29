@@ -21,7 +21,7 @@ Sounding Board의 디자인 철학은 대화 전략 및 시스템 엔지니어�
 - `contents driven`: 사용자가 알지 못하거나 들어보지 못했을 관점의 정보를 제공하고, 이를 통해 사용자를 사로잡고자 했습니다. 따라서 정보 검색(Information retrieval)의 중요성이 높고, 다양한 범위의 토픽, 사용자의 흥미를 다룰 수 있도록 여러 개의 정보 소스를 이용했습니다. *chit-chat*은 일부 포함되어 있으나 주로 대화를 부드럽게 진행시키는 역할을 수행합니다.
 - `user driven`: 사용자의 상태를 적극적으로 트래킹합니다. 발화의 감정, 태도, 의도 등을 다차원 표현으로 나타내고, 성격 퀴즈, 불만 감지 등을 통해 사용자의 상태를 지속적으로 인식하면서 대화를 진행하고자 했습니다.
 
-시스템 엔지니어링 전략은 여러개의 컨텐츠 소스들을 적절히 이용하고자 했던 점, 학습을 위한 적절한 대화 데이터가 부족한점이 주로 고려되었습니다. (따라서 end-to-end generation 시스템 등은 시도하지 않았습니다.) 이에 따라 새로운 능력을 추가하고 기존의 기능을 업데이트하는 것이 쉬운 계층적이고 모듈화된 구조를 통해 대화 관리를 하는 전략을 선택했습니다. 발화 생성 또한 모듈화 되어있어, 여러 모듈들이 speech act에 따라 반응을 생성합니다. 몇몇 생성 모듈에는 여러가지 변형들 중 답변 형식을 선택하는 랜덤성을 부여하는 방식으로, 대화의 단조로움을 피하고 유의미한 대화 데이터를 축적하도록 의도했습니다.
+시스템 엔지니어링 전략은 여러개의 컨텐츠 소스들을 적절히 이용하고자 했던 점, 학습을 위한 적절한 대화 데이터가 부족한점이 주로 고려되었습니다. (따라서 end-to-end generation 시스템 등은 시도하지 않았습니다.) 이에 따라 새로운 능력을 추가하고 기존의 기능을 업데이트하는 것이 쉬운 계층적이고 모듈화된 구조를 통해 대화 관리를 하는 전략을 선택했습니다. 발화 생성 또한 모듈화 되어있어, 여러 모듈들이 speech act에 따라 답변을 생성합니다. 몇몇 생성 모듈에는 여러가지 변형들 중 답변 형식을 선택하는 랜덤성을 부여하는 방식으로, 대화의 단조로움을 피하고 유의미한 대화 데이터를 축적하도록 의도했습니다.
 
 # 2. System Architecture
 
@@ -31,7 +31,7 @@ Sounding Board의 디자인 철학은 대화 전략 및 시스템 엔지니어�
 
 - 프론트 앤드: 유저와 소통하는 부분으로, Sounding Board는 Alexa Skill Kit(ASK)에 포함된 음성 인식(Automatic Speech Recognition - ASR), 텍스트-음성 변환(Text-to-Speech TTS)을 이용합니다.
 
-- 미들 엔드(AWS Lambda 서비스 이용): 다양한 대화 전략을 가지고 유저의 발화에 대한 반응을 생성하는 부분으로, 크게 Natural language understanding(NLU), Dialogue management(DM), Natural language generation(NLG) 3개의 주요 시스템 모듈로 구성됩니다. 각 모듈에서 필요시 백앤드와 통신합니다.
+- 미들 엔드(AWS Lambda 서비스 이용): 다양한 대화 전략을 가지고 유저의 발화에 대한 답변을 생성하는 부분으로, 크게 Natural language understanding(NLU), Dialogue management(DM), Natural language generation(NLG) 3개의 주요 시스템 모듈로 구성됩니다. 각 모듈에서 필요시 백앤드와 통신합니다.
 
 - 백 엔드: 각 대화 전략에서 이용할 수 있는 데이터와 정보를 제공하는 부분으로, 파싱 서비스를 제공하는 스탠퍼드 CoreNLP, 토픽으로 인덱싱된 컨텐츠가 저장되어 있는 AWS DynamoDB, QA, 조크 서비스를 위한 Evi.com 등으로 구성됩니다.
 
@@ -39,7 +39,7 @@ Alexa Prize라는 특수한 환경이기에 필수적인 모듈들을 제외하�
 1. 유저가 말을 하면 ASR의 인식 내용, [Voice User Interface](https://developer.amazon.com/en-US/alexa/alexa-skills-kit/vui)의 결과를 얻습니다.
 2. 이 정보들과 현재의 dialogue state를 바탕으로 NLU가 DM의 입력으로 이용될 `입력 프레임`을 만듭니다.
 3. DM은 이 프레임을 이용하여 대화 전략을 실행하여 Speech act와 컨텐츠를 결정하고, dialogue state를 업데이트 합니다.
-4. NLG모듈은 DM의 결과물들을 이용해 반응을 생성하고, ASK에 반환합니다.
+4. NLG모듈은 DM의 결과물들을 이용해 답변을 생성하고, ASK에 반환합니다.
 
 ## 2.1. Natural language understanding
 
@@ -108,19 +108,19 @@ DM은 전체적인 **대화의 흐름을 관리**하는 모듈입니다. NLU에�
 
 # 2.3. Natural Language Generation
 
-NLG는 speech act과 컨텐츠를 입력으로 받아 반응을 생성하는 모듈입니다. 반응은 4개의 큰 종류 중 최대 3개의 speech act를 포함할 수 있습니다. Amazon TTS API의 요구사항대로, 반응은 `message`와 `reprompt`로 구성되어야 합니다. 장치(Alexa)는 항상 `message`를 읽는데, `reprompt`는 장치가 주어진 기간동안 아무것도 듣지 못했을 때 옵셔널하게 사용됩니다. `grounding` act에 의한 답변은 주로 `message`의 시작에 위치하고, instruction은 `reprompt`에 위치합니다.
+NLG는 speech act과 컨텐츠를 입력으로 받아 답변을 생성하는 모듈입니다. 답변은 4개의 큰 종류 중 최대 3개의 speech act를 포함할 수 있습니다. Amazon TTS API의 요구사항대로 답변은 `message`와 `reprompt`로 구성되어야 합니다. 장치(Alexa)는 항상 `message`를 읽는데, `reprompt`는 장치가 주어진 기간동안 아무것도 듣지 못했을 때 옵셔널하게 사용됩니다. `grounding` act에 의한 답변은 주로 `message`의 시작에 위치하고, instruction은 `reprompt`에 위치합니다.
 
-- `grounding` act의 반응을 생성할 때에는 다음과 같이 세부 카테고리와 관련된 구절/문장들의 모음들 중 랜덤으로 반응을 선택합니다. 
+- `grounding` act의 답변을 생성할 때에는 다음과 같이 세부 카테고리와 관련된 구절/문장들의 모음들 중 랜덤으로 답변을 선택합니다. 
   - `back-channeling`: "I see", "Cool"
   - `user request echoing`: "Looks like you want to talk about news"
   - `misunderstanding apology` “Sorry, I’m having trouble understanding what you said.”
   - `unanswerable user follow-up questions`: “I’m sorry. I don’t remember the details."
   - `gratitude` “I’m happy you like it.”
-- `inform` act는 시작 구절(“Someone on Reddit said”, “My friend in the cloud told me that” 등)과 DM에 의해 제공된 컨텐츠를 결합한 간단한 템플릿에 의해 반응이 구성됩니다.
+- `inform` act는 시작 구절(“Someone on Reddit said”, “My friend in the cloud told me that” 등)과 DM에 의해 제공된 컨텐츠를 결합한 간단한 템플릿에 의해 답변이 구성됩니다.
 - `request` act는 유저의 입력을 요청하는 slot-level의 변형의 형태로 구성됩니다.
 - `instruction` act는 변형이 적고 상황에 맞는 도움말 메시지 모음으로 구성된다.
 
-이렇게 만들어진 반응은 발음을 보다 정확하게 전달하기 위해 ASK SSML을 활용하며, 마지막으로 욕설 단어/구절을 비 공격적인 단어로 대체하는 발화 정화기를 거칩니다.
+이렇게 만들어진 답변은 발음을 보다 정확하게 전달하기 위해 ASK SSML을 활용하며, 마지막으로 욕설 단어/구절을 비 공격적인 단어로 대체하는 발화 정화기를 거칩니다.
 
 # 3. Miniskills
 
@@ -145,7 +145,7 @@ Sounding Board에는 다음과 같이 컨텐츠에 기반한 미니스킬들이 
 
 Sounding Board는 사용자들의 성격을 특정 타입중 하나로 구분합니다. 몇 개의 짧은 질문을 통해 사용자를 4가지 성격 사분면 중 하나에 위치시켰는데, 4분면의 두축은 외향성(Extraversion)과 솔직함(Openness)으로 외향성은 얼마나 수다스럽고 사교적인지를 나타내고, 솔직함(개방성)은 지적, 예술적으로 호기심을 드러내는 것과 관련이 있습니다.
 
-5개의 질문을 진행한 후에 해당 사용자의 성격 결과를 얻을 수 있는 옵션을 제공합니다. 이 때, 중간중간에 대화를 지속하기 위한 "goofy" 질문을 끼워넣는 전략을 이용했습니다. 각 질문에 대한 대답을 얻었을 때, 다음 질문을 하기 전에 반응또한 제공했습니다. (유저 피드백에서 이 반응이 유저 경험에서 큰 향상을 가져옴.) 각 성격 질문은 각 차원에 긍정적/부정적으로 로드되며 이를 통해 사용자를 사분면 상에 위치 시킵니다. 그 후에 사용자를 디즈니 캐릭터에 할당하고 이를 알려줍니다. 성격 질문에 답한 사용자에게는 각 사분면의 유형이 관심을 가질만한 것에 기초하여 토픽을 갱신합니다.
+5개의 질문을 진행한 후에 해당 사용자의 성격 결과를 얻을 수 있는 옵션을 제공합니다. 이 때, 중간중간에 대화를 지속하기 위한 "goofy" 질문을 끼워넣는 전략을 이용했습니다. 각 질문에 대한 대답을 얻었을 때, 다음 질문을 하기 전에 반응(리액션)또한 제공했습니다. (유저 피드백에서 이 반응이 유저 경험에서 큰 향상을 가져옴.) 각 성격 질문은 각 차원에 긍정적/부정적으로 로드되며 이를 통해 사용자를 사분면 상에 위치 시킵니다. 그 후에 사용자를 디즈니 캐릭터에 할당하고 이를 알려줍니다. 성격 질문에 답한 사용자에게는 각 사분면의 유형이 관심을 가질만한 것에 기초하여 토픽을 갱신합니다.
 
 ## 3.3. General miniskills
 
