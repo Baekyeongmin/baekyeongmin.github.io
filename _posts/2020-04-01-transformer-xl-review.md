@@ -1,5 +1,5 @@
 ---
-title: "Trnasformer-XL Review"
+title: "Transformer-XL Review"
 layout: post
 categories:
   - paper-review
@@ -12,10 +12,10 @@ comments: true
 ---
 
 
-이번 글에서는 ACL 2019에서 발표된 ["Trnasformer-XL: Attentive Language Models Beyond a Fixed-Length Context"](https://arxiv.org/abs/1901.02860)를 리뷰하려고 합니다. 본 논문은 기존의 Transformer 구조를 이용한 고정된 길이(Fixed-Length) Language Model의 한계점을 지적하고 더 긴 Long-term dependancy를 이용할 수 있는 새로운 방법을 제시합니다. 또한 다양한 NLU 테스크들에서 SOTA성능을 보이고 있는 [XLNet](https://arxiv.org/abs/1906.08237)과 동일한 저자들이 작성하였고, Transformer-XL의 많은 부분을 XLNet에서 이용하고 있습니다.
+이번 글에서는 ACL 2019에서 발표된 ["Transformer-XL: Attentive Language Models Beyond a Fixed-Length Context"](https://arxiv.org/abs/1901.02860)를 리뷰하려고 합니다. 본 논문은 기존의 Transformer 구조를 이용한 고정된 길이(Fixed-Length) Language Model의 한계점을 지적하고 더 긴 Long-term dependancy를 이용할 수 있는 새로운 방법을 제시합니다. 또한 다양한 NLU 테스크들에서 SOTA성능을 보이고 있는 [XLNet](https://arxiv.org/abs/1906.08237)과 동일한 저자들이 작성하였고, Transformer-XL의 많은 부분을 XLNet에서 이용하고 있습니다.
 
 # 1. Main Idea
-기존의 Transformer기반의 LM(vanilla transformer model)은 코퍼스를 여러 개의 segment들로 나누고, 아래 림과 같이 각 segment별로 *"해당 segment내에서"* Langauge Modeling의 Auto-regressive한 Objective를 학습했습니다. 따라서 segment의 고정된 최대 길이 내에서만 학습이 이루어지므로, 해당 범위를 벗어나는 long-term dependancy는 학습할 수 없습니다. 또한 각 segment는 문장 등의 의미있는 단위로 나눠진 것이 아닌 단순하게 연속적인 symbol들(token, word 등)의 조각들로 구성되기 때문에 해당 segment의 처음 몇개의 symbol들을 예측하기에는 필요한 정보의 양이 부족한 *context fragmentation* 문제가 발생합니다. 저자들은 이러한 vanilla Transformer가 갖고 있는 문제들을 해결하기 위해 Trnasformer-XL(extra long)이라는 방법을 제시합니다.
+기존의 Transformer기반의 LM(vanilla transformer model)은 코퍼스를 여러 개의 segment들로 나누고, 아래 림과 같이 각 segment별로 *"해당 segment내에서"* Langauge Modeling의 Auto-regressive한 Objective를 학습했습니다. 따라서 segment의 고정된 최대 길이 내에서만 학습이 이루어지므로, 해당 범위를 벗어나는 long-term dependancy는 학습할 수 없습니다. 또한 각 segment는 문장 등의 의미있는 단위로 나눠진 것이 아닌 단순하게 연속적인 symbol들(token, word 등)의 조각들로 구성되기 때문에 해당 segment의 처음 몇개의 symbol들을 예측하기에는 필요한 정보의 양이 부족한 *context fragmentation* 문제가 발생합니다. 저자들은 이러한 vanilla Transformer가 갖고 있는 문제들을 해결하기 위해 Transformer-XL(extra long)이라는 방법을 제시합니다.
 
 # 2. Transformer
 
@@ -27,7 +27,7 @@ Transformer는 ["attention is all you need"(Vaswani et al., 2017)](https://arxiv
 1. 고정된 길이의 segment를 입력으로 이용하기 때문에, 해당 길이 이상의 의존성을 학습하기 힘들다.
 2. 각 segment는 의미적 경계(문장 등)을 고려하지 않고 단순히 연속적인 token들을 잘라서 이용했기 때문에, segment의 시작 몇 토큰을 예측하기에는 정보량이 부족하다. - *context fragmentation*문제
 
-# 3. Trnasformer XL
+# 3. Transformer XL
 
 위에서 제시한 문제점을 해결하기 위해, 저자들은 Transformer 구조의 reccurence한 형태를 제시합니다. 이는 연속된 segment를 모델링 할 때, 각 segment를 독립적으로 모델링(기존의 방식)하는 것이 아니라 특정 segment의 모델링에 이전 segment의 정보(각 layer의 hidden state)를 이용하는 방법입니다. 이에 따라 여러 segment사이의 의존성도 파악할 수 있게 되어 고정된 길이의 의존성 문제를 해결하게 되고, context fragment 문제 또한 해결할 수 있게 됩니다.
 
