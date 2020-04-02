@@ -12,7 +12,7 @@ comments: true
 ---
 
 
-이번 글에서는 ACL 2019에서 발표된 ["Trnasformer-XL: Attentive Language Models Beyond a Fixed-Length Context"](https://arxiv.org/abs/1901.02860)를 리뷰하려고 합니다. 본 논문은 기존의 Transformer 구조를 이용한 고정된 길이(Fixed-Length) Language Model의 한계점을 지적하고 더 긴 Long-term dependancy를 이용할 수 있는 새로운 방법을 제시합니다. 또한 다양한 NLU 테스크들에서 SOTA성능을 보이고 있는 [XLNet](https://arxiv.org/abs/1906.08237)과 동일한 저자들이 작성하였고, Transformer-XL의 많은 부분을 XLNet에서 이용하고 있습니다. 이번 포스트에서는 논문과 함께 [저자들의 구현체](https://github.com/kimiyoung/transformer-xl/tree/master/pytorch)도 함께 살펴봅니다.
+이번 글에서는 ACL 2019에서 발표된 ["Trnasformer-XL: Attentive Language Models Beyond a Fixed-Length Context"](https://arxiv.org/abs/1901.02860)를 리뷰하려고 합니다. 본 논문은 기존의 Transformer 구조를 이용한 고정된 길이(Fixed-Length) Language Model의 한계점을 지적하고 더 긴 Long-term dependancy를 이용할 수 있는 새로운 방법을 제시합니다. 또한 다양한 NLU 테스크들에서 SOTA성능을 보이고 있는 [XLNet](https://arxiv.org/abs/1906.08237)과 동일한 저자들이 작성하였고, Transformer-XL의 많은 부분을 XLNet에서 이용하고 있습니다.
 
 # 1. Main Idea
 기존의 Transformer기반의 LM(vanilla transformer model)은 코퍼스를 여러 개의 segment들로 나누고, 아래 림과 같이 각 segment별로 *"해당 segment내에서"* Langauge Modeling의 Auto-regressive한 Objective를 학습했습니다. 따라서 segment의 고정된 최대 길이 내에서만 학습이 이루어지므로, 해당 범위를 벗어나는 long-term dependancy는 학습할 수 없습니다. 또한 각 segment는 문장 등의 의미있는 단위로 나눠진 것이 아닌 단순하게 연속적인 symbol들(token, word 등)의 조각들로 구성되기 때문에 해당 segment의 처음 몇개의 symbol들을 예측하기에는 필요한 정보의 양이 부족한 *context fragmentation* 문제가 발생합니다. 저자들은 이러한 vanilla Transformer가 갖고 있는 문제들을 해결하기 위해 Trnasformer-XL(extra long)이라는 방법을 제시합니다.
@@ -51,8 +51,8 @@ Transformer로 매우 긴 컨텍스트를 모델링 하려면 어떻게 해야�
 
 Vanilla Transformer의 문제를 해결하기 위해 Transformer 구조의 recurrence 방법을 적용합니다. 학습이 진행되는 동안, 각 segment의 연산 결과들을 다음 segment가 이용할 수 있도록 저장(fixed/cached)합니다. 현재 segment에서는 모델링을 직전 segment의 정보를 이용할 수 있습니다. 즉 위 그림의 왼쪽 부분과 같이 하나의 segment를 모델링 하기 위해 두 개의 연속된 segment의 정보를 이용합니다.
 
-$$\tilde{h}^{n-1}_{\tau+1} = [SG(h^{n - 1}_{\tau + 1}) ; h^{n-1}_{\tau + 1}]$$ 
-  
+$$\tilde{h}^{n-1}_{\tau+1} = [SG(h^{n - 1}_{\tau + 1}) ; h^{n-1}_{\tau + 1}]$$
+
 $$\tau - 1$$과 $$\tau$$ 시점의 $$n-1$$ 번째 layer의 hidden state를 concat하여 Transformer $$n$$ 번째 layer에서 이용될 입력을 구성합니다. SG는 Stop Gradient로, Backpropagation을 할 때, 이전 segment의 hidden state를 만들기 위해 이용되었던 prameter는 학습되지 않습니다.(Grandient가 전파되지 않습니다.)
 
 $$q^n_{\tau + 1}, k^n_{\tau + 1}, v^n_{\tau + 1} = h^{n - 1}_{\tau + 1}W^T_q, \tilde{h}^{n-1}_{\tau+1}W^T_k, \tilde{h}^{n-1}_{\tau+1}W^T_v$$
@@ -79,8 +79,42 @@ $$E$$ 는 word embedding $$U$$ 는 Positional encoding입니다. 이 때 이전 
 
 positional encoding은 모델에게 토큰의 위치에 대한 단서/bias(어디에 attend 해야 하는지)를 제공합니다. 동일한 목적을 위해서는 위치 정보를 일반적인 transformer의 방식과 같이 초기 임베딩에 포함시키는 것 대신 각 layer의 attention score에 직접 포함시킬 수 있습니다. 또한 attention에서는 각 토큰의 query, key 벡터 사이의 유사도를 계산하는데, 이 때 각 토큰의 절대적 위치를 아는 것 보다는 두 토큰 사이의 상대적인 거리를 아는 것이 더 중요합니다. 즉 시간적 정보를 "절대적"(기존의 방식)이 아닌 "상대적"으로 정의하는 것이 조금 더 직관적이고, 일반화 가능합니다.
 
-이러한 근거에 따라 저자들은 기존 Transformer의 방식에서 부터 새로운 Relative Positional Encoding 방식을 제안합니다. 
+이러한 근거에 따라 저자들은 기존 Transformer의 방식에서 부터 새로운 Relative Positional Encoding 방식을 제안합니다. 각 토큰의 위치를 나타내는 절대적 인코딩 대신 두 토큰 사이의 거리를 나타내는 0~$$L_{max}$$사이의 상대적 인코딩을 만듭니다. 먼저 기존의 Transformer의 attention 계산식부터 살펴보면 다음과 같습니다.
 
-$$A_{i, j}^{abs} = (E_{x_i}^T + U_i)$$
+$$A_{i, j}^{abs} = (E_{x_i}^T + U_i^T)W_q^T((E_{x_j}^T + U_j^T)W_k^T)^T$$
 
-Relative Postion을 나타내는 $$R \in \mathbb{R}^{L_{max} \times d}$$ ($$L$$은 segment 최대 길이, $$d$$는 hidden size)를 만듭니다. 이 메트릭스의 $$i$$번째 행은 두 토큰 사이의 상대적 거리가 $$i$$인 position 정보를 나타냅니다.
+절대적인 postional encoding을 이용했을 경우, $$i$$ 번째 query 토큰과 $$j$$번째 key 토큰 사이의 ateention 값은 위 식과 깉이 계산할 수 있습니다. 이 식을 풀어쓰면 다음과 같습니다.
+
+$$A_{i, j}^{abs} = \underbrace{E_{x_i}^TW_q^TW_kE_{x_j}}_{(a)} + \underbrace{E_{x_i}^TW_q^TW_kU_j}_{(b)} + \underbrace{U_i^TW_q^TW_kE_{x_j}}_{(c)} + \underbrace{U_i^TW_q^TW_kU_j}_{(d)}$$
+
+총 4가지 텀으로 구성되어 있고, 위 식에 Relative Positional Encoding을 적용하여 다음과 같은 형태로 나타냅니다.
+
+$$A_{i, j}^{rel} = \underbrace{E_{x_i}^TW_q^TW_{k, E}E_{x_j}}_{(a)} + \underbrace{E_{x_i}^TW_q^TW_{k, R}R_{i-j}}_{(b)} + \underbrace{u^TW_{k, E}E_{x_j}}_{(c)} + \underbrace{v^TW_{k, R}R_{i-j}}_{(d)}$$
+
+기존의 식과 차이점을 살펴보면 다음과 같습니다.
+- 절대적인 positional encoding, $$U_i, U_j$$를 상대적인 $$R_{i-j}$$로 변경했습니다. $$R \in \mathbb{R}^{L_{max} \times d}$$로, $$i$$ 번째 행은 상대적인 거리가 $$i$$인 위치의 encoding 값입니다.
+- $$U_i^TW_q^T$$를 $$u \in \mathbb{R}^d$$로 변경했습니다. query 벡터는 모든 위치에 대해 동일한 값을 가지는데, attention 값을 계산하기 전에 서로 다른 단어들이 위치에 관계없이 일정하게 가지는 bias로 볼 수 있습니다. (위 식에서 (a), (c)텀을 묶어서 보면 $$(E_{x_i}^TW_q^T + u^T)W_{k, E}E_{x_j}$$과 같이 나타내어 집니다.)
+- 비슷한 이유로 $$U_i^TW_q^T$$를 $$v \in \mathbb{R}^d$$로 대체합니다. ((b), (d)텀을 묶어서 보면 $$(E_{x_i}^TW_q^T + v^T)W_{k, R}R_{i-j}$$로 나타내어 집니다.)
+- 마지막으로 key value에 대한 Wiehgt를 $$W_{k, E}, W_{k,R}$$로 나누는데 각각 컨텐츠 기반, 위치 기반의 key 벡터를 만듭니다. $$A_{i, j}^{rel} = (E_{x_i}^TW_q^T + u^T)W_{k, E}E_{x_j} + (E_{x_i}^TW_q^T + v^T)W_{k, R}R_{i-j}$$과 같이 나타내면 명확히 각 $$W_k$$의 역할을 구분할 수 있습니다.
+
+각 텀들의 직관적 의미는 다음과 같습니다.
+- (a): 컨텐츠 기반의 전달(addressing)
+- (b): 컨텐츠에 의존하는 positional bias
+- (c): 글로벌 컨텐츠에 대한 bias
+- (d): 글로벌 위치에 대한 bias
+
+recurrence 매커니즘이 적용된 Transformer-XL 각 layer의 동작은 다음과 같습니다.(아래 식의 attention은 sinlge attention head만 표현합니다.)
+
+$$\tilde{h}^{n-1}_{\tau} = [SG(m^{n - 1}_{\tau}) ; h^{n-1}_{\tau}]$$
+
+$$q^n_{\tau}, k^n_{\tau}, v^n_{\tau} = h^{n - 1}_{\tau}W^{n\top}_q, \tilde{h}^{n-1}_{\tau}W^{n\top}_{k, E}, \tilde{h}^{n-1}_{\tau}W^{n\top}_v$$
+
+$$A^n_{\tau, i, j} = q^{n\top}_{r, i} k^n_{\tau, j} + q^{n\top}_{r, i} W^n_{k,R}R_{i - j} + u^{\top}k_{\tau, j} + v^{\top}W^n_{k,R}R_{i-j}$$
+
+$$a^n_{\tau} = Masked\_Softmax(A^n_{\tau})v^n_{\tau}$$
+
+$$o^n_{\tau}=LayerNorm(Linear(a^n_{\tau}) + h^{n-1}_{\tau})$$
+
+$$h^n_{\tau} = Positionwise\_Feed\_Forward(o^n_{\tau})$$
+
+Attention 연산을 제외한 전체적인 알고리즘은 Transformer와 동일합니다. 가장 초기 입력은 $$h^0_{\tau}:= E_{s_{\tau}}$$으로 단어 임베딩 값으로만 구성됩니다. 실제 [저자들의 구현체](https://github.com/kimiyoung/transformer-xl/tree/master/pytorch)를 살펴보면, attention의 종류와 positional encoding의 종류(sinusoidal, learnable 등)에 따라 여러 모듈들이 존재합니다. 모든 토큰 쌍 $$(i,j)$$에 대해 positional encoding을 계산하는 $$W^n_{k, R}R_{i - j}$$는 $$O(n^2)$$ 의 복잡도를 요구하기 때문에 이를 빠르게 계산하는 방법 또한 제공합니다.
