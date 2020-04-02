@@ -117,9 +117,11 @@ $$o^n_{\tau}=LayerNorm(Linear(a^n_{\tau}) + h^{n-1}_{\tau})$$
 
 $$h^n_{\tau} = Positionwise\_Feed\_Forward(o^n_{\tau})$$
 
-Attention 연산을 제외한 전체적인 알고리즘은 Transformer와 동일합니다. 가장 초기 입력은 $$h^0_{\tau}:= E_{s_{\tau}}$$으로 단어 임베딩 값으로만 구성됩니다. 실제 [저자들의 구현체](https://github.com/kimiyoung/transformer-xl/tree/master/pytorch)를 살펴보면, attention의 종류와 positional encoding의 종류(sinusoidal, learnable 등)에 따라 여러 모듈들이 존재합니다. 모든 토큰 쌍 $$(i,j)$$에 대해 positional encoding을 계산하는 $$W^n_{k, R}R_{i - j}$$는 $$O(n^2)$$ 의 복잡도를 요구하기 때문에 이를 빠르게 계산하는 방법 또한 Appendix + 구현에서 제공합니다.
+Attention 연산을 제외한 전체적인 알고리즘은 Transformer와 동일합니다. 가장 초기 입력은 $$h^0_{\tau}:= E_{s_{\tau}}$$으로 단어 임베딩 값으로만 구성됩니다. 실제 [저자들의 구현체](https://github.com/kimiyoung/transformer-xl/tree/master/pytorch)를 살펴보면, attention의 종류와 positional encoding의 종류(sinusoidal, learnable 등)에 따라 여러 모듈들이 존재합니다. 모든 토큰 쌍 $$(i,j)$$에 대해 positional encoding을 계산하는 $$W^n_{k, R}R_{i - j}$$는 quadratic의 cost를 요구하기 때문에 이를 빠르게 계산하는 방법 또한 Appendix + 구현에서 제공합니다.
 
 ## 4. Experiments
+
+## 4.1 Main Result
 
 저자들은 다영한 word 단위, character 단위의 language modeling 데이터셋들(WikiText-103, enwik8, text8, One Billion Word)로 학습을 진행했고, SOTA모델들과 비교했습니다.
 
@@ -138,3 +140,59 @@ text8은 enwik8과 달리 100M의 정제된 위키피디아 데이터 입니다.
 ![one_billion_word](/images/Transformer-XL/one_billion_word.png){: width="50%"}{: .center}
 
 One Billion Word 데이터셋은 문장들을 섞었기 때문에, long-term dependency를 보존하지 않습니다. 즉, 주로 short-term dependency를 모델링하는 것을 테스트하는 데이터셋입니다. Transformer-XL은 long-term dependency학습에 중점을 두었음에도 불구하고, SoTA를 달성했고 short-term dependency도 잘 일반화한다고 볼 수 있습니다.
+
+## 4.2 Ablation Study
+
+초기에 기존 방법들이 갖고 있던 두 가지 문제 1)fixed-length로 long-term dependency에 제약 2) context fragmentation 문제를 제시했습니다. 이 문제들에 대해 Transformer-XL에서 이용한 두 가지 메인 테크닉 1)recurrence 구조 2)relative positional encoding 의 효과를 증명합니다.
+
+첫번 째 실험은 WikiText-103을 이용했는데, 이 데이터셋은 위에서 언급 했듯이 long-term dependency 모델링을 테스트하기에 적합합니다. 표의 각 항목들은 다음과 같습니다. 
+
+![ablation_1](/images/Transformer-XL/ablation_1.png){: width="100%"}{: .center}
+
+- **`Recurrence`**
+  - True: 주어진 Attention length만큼 Recurrence하게 연산을 진행하는 방식
+  - False: Recurrence연결 없이 기존의 sliding window 방식
+- **`Encoding`**
+  - 상대적인 방식: 본 논문에서 제시한 방법, Shaw et al. (2018)
+  - 절대적인 방식: Vaswani et al.,(2017), Al-Rfou et al.(2018)
+- **`Loss`**
+  - half: 마지막 반의 위치에 있는 토큰들에 대해서만 loss를 계산하는 방식
+  - full: 모든 위치에 있는 토큰들에 대해 loss를 계산하는 방식으로 구성됩니다.
+- **`PPL init`**: 학습시 같은 길이를 사용했을 때의 PPL
+- **`PPL best`**: 최적의 길이를 이용했을 때의 PPL
+- **`Atth Len`**: PPL best를 얻기 위해 이용된 attention length 입니다.
+
+위 표의 결과를 보면 제시한 두가지 테크닉이 모두 퍼포먼스에 영향을 준다는 것을 알 수 있습니다. 
+- `Encoding`을 제외한 모든 조건이 동일한 5번째 실험 vs (8,9 번째 실험)을 보면, 상대적인 positional encoding 방식이 더 우세한 성능을 보입니다.
+- `Recurrence`를 제외한 모든 조건이 동일한 2번째 실험 vs 6번째 실험을 비교해보면 Recurrence 구조가 더 좋은 성능을 보입니다.
+- 마지막 3개의 실험을 비교해보면 `Attn Len`이 클수록 더 좋은 성능을 보입니다.
+
+두번 째 실험은 더 긴 컨텍스트를 볼 수 있는 장점을 통해 context fragmentation 문제를 해결했는지 확인하기 위한 실험을 진행했습니다. 따라서 비교적 long-term dependency를 덜 요구하는 One Billion Word 데이터셋을 이용했습니다.
+
+![ablation_2](/images/Transformer-XL/ablation_2.png){: width="50%"}{: .center}
+
+위 표와 같이 long-term dependency가 중요하지 않은 테스트에서도 recurrence를 이용한 경우에 더 좋은 성능을 얻었습니다. 또한 짧은 시퀀스에 대해 Shaw et al.,(2018)의 인코딩 방식 보다 뛰어난 성능을 보였습니다. 결과적으로 recurrence 구조는 context fragmentation 문제를 해결한다고 볼 수 있습니다.
+
+# 5. Appendix - Efficient Computation of the Attention with Relative Positional Embedding
+
+모든 Query, Key 토큰 쌍 (i,j)에 대해 $$W_{k, R}R_{i - j}$$를 계산하면, 나이브한 방식으로는 quadratic의 비용을 갖습니다. 따라서 linear의 cost를 갖는 방법을 소개합니다.
+
+$$i-j$$의 범위는 0부터 $$M + L - 1$$까지 입니다. ($$M$$: Memory 길이, $$L$$: Segment 길이) 따라서 $$R = \{R_0, ... R_{M+L-1}\}$$ 입니다.
+
+![efficient_1](/images/Transformer-XL/efficient_1.png){: width="70%"}{: .center}
+
+위 방식으로 $$W_{k, R}R_{i - j}$$의 가능한 모든 쌍에 대한 계산을 진행합니다. 이 때, $$Q$$는 크기의 역순으로 정의되어 $$Q_k = W_{k, R}R_{M+L-1-k}$$와 같은데, 이를 통해 이후 연산을 조금 더 쉽게 진행할 수 있습니다.
+
+![efficient_2](/images/Transformer-XL/efficient_2.png){: width="100%"}{: .center}
+
+relative positional encoding의 (b) 텀,  $$E_{x_i}^TW_q^TW_{k, R}R_{i-j}$$ 을 현재 query, key 쌍에 대해 모두 계산합니다. 위 행렬에서 행은 query, 열은 key로 볼 수 있습니다. query는 Segment로 $$L$$만큼의 길이를,  key는 Memory + Segment로 총 $$M + L$$의 길이를 갖습니다. 행렬의 각 위치에서 query와 key의 상대적인 거리에 따라 $$R_{i-j}$$값이 결정됩니다.
+
+![efficient_3](/images/Transformer-XL/efficient_3.png){: width="80%"}{: .center}
+
+첫번 째 그림에서 만들었던 $$Q$$와 query 벡터 $$E^TW_q^T$$를 곱하면 $$\tilde{B}$$를 얻을 수 있습니다. $$\tilde{B}$$의 각 행을 왼쪽으로 shift하면, $$\tilde{B}$$와 동일한 행렬을 만들 수 있습니다. 결과적으로 $$qQ^{\top}$$의 행렬곱과 `left-shift` 연산을 진행하면 (b) 텀을 계산할 수 있습니다.
+
+# 7. Reference
+
+- Zihang Dai, Zhilin Yang, Yiming Yang, Jaime Carbonell, Quoc V. Le, Ruslan Salakhutdinov. Transformer-XL: Attentive Language Models Beyond a Fixed-Length Context. In ACL, 2019.
+
+- Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N Gomez, Łukasz Kaiser, and Illia Polosukhin. Attention is all you need. In Advances in neural information processing systems(NeurIPS), 2017.
