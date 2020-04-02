@@ -117,4 +117,24 @@ $$o^n_{\tau}=LayerNorm(Linear(a^n_{\tau}) + h^{n-1}_{\tau})$$
 
 $$h^n_{\tau} = Positionwise\_Feed\_Forward(o^n_{\tau})$$
 
-Attention 연산을 제외한 전체적인 알고리즘은 Transformer와 동일합니다. 가장 초기 입력은 $$h^0_{\tau}:= E_{s_{\tau}}$$으로 단어 임베딩 값으로만 구성됩니다. 실제 [저자들의 구현체](https://github.com/kimiyoung/transformer-xl/tree/master/pytorch)를 살펴보면, attention의 종류와 positional encoding의 종류(sinusoidal, learnable 등)에 따라 여러 모듈들이 존재합니다. 모든 토큰 쌍 $$(i,j)$$에 대해 positional encoding을 계산하는 $$W^n_{k, R}R_{i - j}$$는 $$O(n^2)$$ 의 복잡도를 요구하기 때문에 이를 빠르게 계산하는 방법 또한 제공합니다.
+Attention 연산을 제외한 전체적인 알고리즘은 Transformer와 동일합니다. 가장 초기 입력은 $$h^0_{\tau}:= E_{s_{\tau}}$$으로 단어 임베딩 값으로만 구성됩니다. 실제 [저자들의 구현체](https://github.com/kimiyoung/transformer-xl/tree/master/pytorch)를 살펴보면, attention의 종류와 positional encoding의 종류(sinusoidal, learnable 등)에 따라 여러 모듈들이 존재합니다. 모든 토큰 쌍 $$(i,j)$$에 대해 positional encoding을 계산하는 $$W^n_{k, R}R_{i - j}$$는 $$O(n^2)$$ 의 복잡도를 요구하기 때문에 이를 빠르게 계산하는 방법 또한 Appendix + 구현에서 제공합니다.
+
+## 4. Experiments
+
+저자들은 다영한 word 단위, character 단위의 language modeling 데이터셋들(WikiText-103, enwik8, text8, One Billion Word)로 학습을 진행했고, SOTA모델들과 비교했습니다.
+
+![wikitext](/images/Transformer-XL/wikitext.png){: width="50%"}{: .center}
+
+WikiText-103은 이용가능한 가장 큰 word단위의 language modeling 벤치마크이고, long-term dependency를 갖고 있습니다. 총 28K의 기사들로 부터 만들어진 103M의 학습 토큰으로 구성됩니다. 또한 평균적으로 기사 하나당 3.6K의 토큰이 존재해서, long-term dependancy 모델링 틍력을 테스트할 수 있습니다. 학습 동안은 384, 평가 동안은 1600의 attention 길이를 이용했습니다. 위의 표와 같이 이전 SoTA ppl을 20.5에서 18.3로 능가함을 볼 수 있습니다.
+
+![enwik](/images/Transformer-XL/enwik.png){: width="50%"}{: .center}
+
+enwik8은 100Mb의 정제되지 않은 위키피디아 텍스트입니다. 학습 동안 784, 평가 동안 3800의 attention length를 이용했습니다. vanilla transformer뿐만 아니라, RNN-based 모델은 큰 격차로 뛰어넘음을 볼 수 있습니다. 또한 Vanilla transformer-64layer의 성능과 transformer-xl-12layer(약 17%의 크기)이 동일하고, xl또한 layer수를 늘릴 수록 더 좋은 성능을 보입니다. 보조의 loss들을 이용하지 않고 기존의 모델들을 넘었기 때문에 더 좋은 구조 덕분이라고 볼 수 있습니다.
+
+![text8](/images/Transformer-XL/text8.png){: width="50%"}{: .center}
+
+text8은 enwik8과 달리 100M의 정제된 위키피디아 데이터 입니다. a-z의 character만 포함하며, 모두 소문자로 구성됩니다. enwik8에서 가장 좋았던 하이퍼파라메터 설정으로 학습을 진행했고, SoTA성능을 달성했습니댜.
+
+![one_billion_word](/images/Transformer-XL/one_billion_word.png){: width="50%"}{: .center}
+
+One Billion Word 데이터셋은 문장들을 섞었기 때문에, long-term dependency를 보존하지 않습니다. 즉, 주로 short-term dependency를 모델링하는 것을 테스트하는 데이터셋입니다. Transformer-XL은 long-term dependency학습에 중점을 두었음에도 불구하고, SoTA를 달성했고 short-term dependency도 잘 일반화한다고 볼 수 있습니다.
