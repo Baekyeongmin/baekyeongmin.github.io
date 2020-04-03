@@ -145,7 +145,7 @@ One Billion Word 데이터셋은 문장들을 섞었기 때문에, long-term dep
 
 초기에 기존 방법들이 갖고 있던 두 가지 문제 1)fixed-length로 long-term dependency에 제약 2) context fragmentation 문제를 제시했습니다. 이 문제들에 대해 Transformer-XL에서 이용한 두 가지 메인 테크닉 1)recurrence 구조 2)relative positional encoding 의 효과를 증명합니다.
 
-첫번 째 실험은 WikiText-103을 이용했는데, 이 데이터셋은 위에서 언급 했듯이 long-term dependency 모델링을 테스트하기에 적합합니다. 표의 각 항목들은 다음과 같습니다. 
+첫번 째 실험은 WikiText-103을 이용했는데, 이 데이터셋은 위에서 언급 했듯이 long-term dependency 모델링을 테스트하기에 적합합니다. 표의 각 항목들은 다음과 같습니다.
 
 ![ablation_1](/images/Transformer-XL/ablation_1.png){: width="100%"}{: .center}
 
@@ -162,7 +162,7 @@ One Billion Word 데이터셋은 문장들을 섞었기 때문에, long-term dep
 - **`PPL best`**: 최적의 길이를 이용했을 때의 PPL
 - **`Atth Len`**: PPL best를 얻기 위해 이용된 attention length 입니다.
 
-위 표의 결과를 보면 제시한 두가지 테크닉이 모두 퍼포먼스에 영향을 준다는 것을 알 수 있습니다. 
+위 표의 결과를 보면 제시한 두가지 테크닉이 모두 퍼포먼스에 영향을 준다는 것을 알 수 있습니다.
 - `Encoding`을 제외한 모든 조건이 동일한 5번째 실험 vs (8,9 번째 실험)을 보면, 상대적인 positional encoding 방식이 더 우세한 성능을 보입니다.
 - `Recurrence`를 제외한 모든 조건이 동일한 2번째 실험 vs 6번째 실험을 비교해보면 Recurrence 구조가 더 좋은 성능을 보입니다.
 - 마지막 3개의 실험을 비교해보면 `Attn Len`이 클수록 더 좋은 성능을 보입니다.
@@ -196,3 +196,8 @@ relative positional encoding의 (b) 텀,  $$E_{x_i}^TW_q^TW_{k, R}R_{i-j}$$ 을 
 - Zihang Dai, Zhilin Yang, Yiming Yang, Jaime Carbonell, Quoc V. Le, Ruslan Salakhutdinov. Transformer-XL: Attentive Language Models Beyond a Fixed-Length Context. In ACL, 2019.
 
 - Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N Gomez, Łukasz Kaiser, and Illia Polosukhin. Attention is all you need. In Advances in neural information processing systems(NeurIPS), 2017.
+
+
+# 수정해야할 사항
+
+- Transformer Decoder를 이용했다는 점 추가
