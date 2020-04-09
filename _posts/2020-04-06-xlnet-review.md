@@ -119,7 +119,7 @@ $$\max_{\theta} \space  \mathbb{E}_{z\backsim Z_T}[\log \space p_{\theta}(x_{z >
 
 서로 다른 시퀀스 길이의 입력에 대해 타겟의 시점($$c$$)를 정하기 위해 $$K$$라는 하이퍼파라메터를 도입합니다. 각 시퀀스 별로 $$\lvert z \rvert / (\lvert z \rvert - c) \approx K$$ 를 만족하는 $$c$$ 를 이용하는데, 이 식을 이용하면 약 $$1/K$$ 개의 토큰이 타겟으로 설정됩니다. 또한 학습의 효율성을 위해 $$z_{< c}$$ 에 대해서는 Query representation을 계산하지 않습니다.
 
-## 3.2. Incorporating Ideas from Transformer-XL
+## 3.3. Incorporating Ideas from Transformer-XL
 
 Trnasformer-XL은 AR Language Modeling에서 SoTA성능을 보이고 있고, Permutation Language Modeling 또한 넓은 범위의 AR 모델링이기 때문에 해당 방법을 적용할 수 있습니다. Transformer-XL의 핵심 아이디어 두 가지 1)recurrent 매커니즘, 2)relative positional encoding 을 XLNet에 적용합니다. Transformer-XL에 대한 자세한 내용은 [논문](https://arxiv.org/abs/1901.02860) 혹은 [지난 포스트](https://baekyeongmin.github.io/paper-review/transformer-xl-review/)에서 확인할 수 있습니다.
 
@@ -128,3 +128,15 @@ Trnasformer-XL은 AR Language Modeling에서 SoTA성능을 보이고 있고, Per
 $$h_{z_t}^{(m)} \leftarrow Attention(Q=h_{z_t}^{(m - 1)}, KV=[\tilde{h}^{m - 1}, h_{z \leq t}^{m - 1}] ; \theta)$$
 
 - relative positional encoding: Transformer-XL에서 메모리와 현제 시그먼트 사이의 positional encoding을 구분하기 위해, Q와 K사이의 상대적인 위치 차이를 인코딩하는 기법을 이용했습니다. XL-Net에서도 이와 동일한 기법을 이용합니다.
+
+## 3.4. Modeling Multiple Segments
+
+QA(`Question`/`Paragraph`), STS(`Text1`/`Text2`)등 많은 downstream 테스크들에서 입력으로 2개 이상의 시그먼트를 이용합니다. 그래서 BERT에서는 pre-training 부터 두 개의 시그먼트로 구성된 입력 형식(`[CLS]`, `Segment_A`, `[SEP]`, `Segment_B`, `[SEP]`)을 이용하고 두 시그먼트를 구분하기 위해 `[SEP]`이라는 특수 토큰과 각 시그먼트 별로 다른 임베딩(시그먼트 임베딩)을 부여합니다. 또한 두 시그먼트A가 시그먼트B와 연속 되는 것인지/ 시그먼트B가 다른 문단에서 샘플링된 것인지를 예측하는 Next Sentence Prediction(NSP)문제를 통해 두 시그먼트 사이의 관계를 학습합니다.
+
+XL-Net에서도 이와 동일한 입력 형식을 이용하고 50%의 확률로 다른 문단으로부터 시그먼트B를 샘플링하는데, 다음과 같이 몇 가지 차이점이 존재합니다.
+
+- 위에서 설명했던 메모리는 시그먼트A, 시그먼트B가 연속일 때에만 이용합니다. (연속 되지 않으면 서로 다른 문단으로 부터 추출되었기 때문에 서로 의존관계를 학습할 필요가 없습니다.)
+- BERT와 유사하게 서로 다른 시그먼트를 구분할 수 있도록 시그먼트 인코딩을 추가합니다. 각 어텐션 헤드별로 같은 시그먼트에 속하는 토큰 $$i,j$$사이의 시그먼트 인코딩 $$s_{ij}=s_{+}$$과 아닌 경우 $$s_{ij}=s_{-}$$를 학습가능한 파라메터로 둬서 어텐션 계산시 반영합니다. $$i$$ 번째 쿼리 토큰과 $$j$$ 번째 키 토큰 사이의 어텐션을 계산할 때, $$a_{ij}=(q_i + b)^{\top}s_{ij}$$를 원래의 어텐션 값에 더해줍니다. (최종 softmax 이전에 더해줍니다.) $$q_i$$는 쿼리 벡터, $$b$$는 헤드 별 학습가능한  바이어스를 $$s_ij$$는 시그먼트 인코딩 입니다. 또한 이 인코딩은 상대적인 것(같은 시그먼트인지/아닌지)이기 때문에 입력이 두 개보다 많은 경우에도 이용할 수 있습니다.
+
+# 3. Experiments
+
