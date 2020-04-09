@@ -201,3 +201,4 @@ relative positional encoding의 (b) 텀,  $$E_{x_i}^TW_q^TW_{k, R}R_{i-j}$$ 을 
 # 수정해야할 사항
 
 - Transformer Decoder를 이용했다는 점 추가
+- 각 layer별로 positional encoding 정보를 계속해서 추가해준다는 점 추가
