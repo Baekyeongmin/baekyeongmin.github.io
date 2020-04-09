@@ -27,7 +27,7 @@ AR Language modeling은 확률을 할당하기 위해 주어진 텍스트 시퀀
 
 $$input \space sequence : X = (x_1, x_2, ..., x_T)$$
 
-$$forward \space likelihood:p(X) = \Pi^T_{t=1} p(x_t \mid x_{<t})$$
+$$forward \space likelihood:p(X) = \prod\limits^T_{t=1} p(x_t \mid x_{<t})$$
 
 $$training \space objective(forward) : \max_{\theta} \space \log p_{\theta}(x) =\max_{\theta} \space \sum\limits^T_{t=1} \log p(x_t \mid x_{<t})$$
 
@@ -41,7 +41,7 @@ $$input \space sequence : \overline{X} = (x_1, x_2, ..., x_T)$$
 
 $$corrupted \space input : \widehat{X} = (x_1, [MASK], ... x_T)$$
 
-$$likelihood: p(\overline{X} \mid \widehat{X}) \color{red}{\approx} \color{black}{\Pi_{t=1}^T p(x_t \mid \widehat{x})}$$
+$$likelihood: p(\overline{X} \mid \widehat{X}) \color{red}{\approx} \color{black}{\prod\limits_{t=1}^T p(x_t \mid \widehat{x})}$$
 
 $$training \space objective: \max_{\theta} \space \log p(\overline{X} \mid \widehat{X}) = \max_{\theta} \space \sum\limits^T_{t=1} m_t \log p(x_t \mid \widehat{x}) $$
 
@@ -55,21 +55,19 @@ $$training \space objective: \max_{\theta} \space \log p(\overline{X} \mid \wide
 
 특정한 가정 없이 모델링을 표현할 수 있는 AR모델의 이점과 양방향의 컨텍스트를 이용할 수 있는 AE모델의 이점을 모두 살리면서 나머지 단점/한계점들을 보완하는 **Permutation Language Modeling**이라는 새로운 objective를 제시합니다.
 
-길이 $$T$$의 시퀀스 $$X=[x_1, x_2, ... x_T]$$가 주어졌을 때, 시퀀스를 나열할 수 있는 모든 순서의 집합($$Z_T$$) - 순열(Permutation)은 $$[1, 2, 3, ..., T], [2, 3, 4, ... T], ... [T, T-1, ... 1]$$ 등 총 $$T!$$개 만들 수 있습니다. 이 때 새로운 objective는 다음 식과 같이 이 집합($$Z_T$$)에 속해있는 모든 순서들에 대해 해당 순서와 AR 방식으로 모델링을 진행하고, 모든 순서의 log likelihood의 기댓값을 최대화합니다.
+길이 $$T$$의 시퀀스 $$X=[x_1, x_2, ... x_T]$$가 주어졌을 때, 시퀀스를 나열할 수 있는 모든 순서의 집합($$Z_T$$) - 순열(Permutation)은 $$[1, 2, 3, ..., T], [2, 3, 4, ... T], ... [T, T-1, ... 1]$$ 등 총 $$T!$$개 만들 수 있습니다. 이 때 새로운 objective는 다음 식과 같이 이 집합($$Z_T$$)에 속해있는 모든 순서들을 고려하여 AR 방식으로 모델링을 진행하고, 각 순서에 대한 log likelihood 기댓값을 최대화합니다. 기존의 AR모델링은 해당 objective의 순열 중 한 가지 경우-원래의 순서($$[1, 2, 3, ... T]$$)만을 고려한다고 볼 수 있습니다.
 
-$$likelihood : \mathbb{E}_{z\backsim Z_T}[\Pi_{t=1}^Tp(x_{z_t} \mid x_{z < t})]$$
+$$likelihood : \mathbb{E}_{z\backsim Z_T}[\prod\limits_{t=1}^Tp_{\theta}(x_{z_t} \mid x_{z < t})]$$
 
 $$training \space objective :\max_{\theta} \space \mathbb{E}_{z\backsim Z_T}[\sum\limits_{t=1}^T \log \space p_{\theta}(x_{z_t} \mid x_{z < t})]$$
 
-입력 시퀀스 [`"나는"`, `"블로그"`, `"를"`, `"쓰고"`, `"있다"`, `"."`] 와 길이가 6인 모든 순서들의 집합 $$Z_6 = {[1,2,3,4,5,6], [2,3,4,5,6,1], ... [6,5,4,3,2,1]}$$이 주어졌을 때, 각 순서들에 대해 AR 모델링을 수행합니다. 
+입력 시퀀스 [`"나는"`, `"블로그"`, `"를"`, `"쓰고"`, `"있다"`, `"."`] 와 길이가 6인 모든 순서들의 집합 $$Z_6 = {[1,2,3,4,5,6], [2,3,4,5,6,1], ... [6,5,4,3,2,1]}$$이 주어졌을 때, 각 순서들에 대한 AR모델링을 고려할 수 있습니다.
 
-$$z=[1,2,3,4,5,6]$$인 경우 기존 시퀀스의 순서 그대로 진행하여 $$\Pi_{t=1}^Tp(x_{z_t} \mid x_{z < t})]$$는 $$p(블로그 \mid 나는)p(를 \mid 나는, 블로그)...p(. \mid 나는,블로그,를,쓰고,있다)$$ 가 되고 $$z=[2,3,4,5,6,1]$$인 경우 [`"블로그"`, `"를"`, `"쓰고"`, `"있다"`, `"."`, `"나는"`]의 순서로 진행하여 $$p(를 \mid 블로그)p( 쓰고 \mid 를, 블로그)...p(나는 \mid 블로그,를,쓰고,있다,.)$$이 됩니다.
-
-이렇게 모든 순서들에 대해 구해진 값들에 log를 취한 기댓값(모든 permutation은 동일한 확률을 가지므로 평균과 동일함)을 최대화 합니다.
+$$z=[1,2,3,4,5,6]$$인 경우 기존 시퀀스의 순서 그대로 진행하여 $$\prod_{t=1}^Tp(x_{z_t} \mid x_{z < t})$$는 $$p(블로그 \mid 나는)p(를 \mid 나는, 블로그)...p(. \mid 나는,블로그,를,쓰고,있다)$$ 가 되고 $$z=[2,3,4,5,6,1]$$인 경우 [`"블로그"`, `"를"`, `"쓰고"`, `"있다"`, `"."`, `"나는"`]의 순서로 진행하여 $$p(를 \mid 블로그)p( 쓰고 \mid 를, 블로그)...p(나는 \mid 블로그,를,쓰고,있다,.)$$이 됩니다.
 
 이 때 주의해야 할 점은 시퀀스 자체의 순서를 섞는것이 아니라 $$p(x)$$를 조건부 확률들의 곱으로 분리 할때 이 순서만 섞는다는 점입니다. 즉 모델은 기존 시퀀스의 토큰들의 절대적 위치를 알 수 있습니다. 위 예시에서 $$p(나는 \mid 블로그,를,쓰고,있다,.)$$는 2번째 위치에 `"블로그"`라는 토큰, 3번째 위치에 `"를"`이라는 토큰, 4번째 위치에 `"쓰고"` 라는 토큰... 이 주어졌을 때, 첫번째 위치에 `"나는"`이라는 토큰이 올 확률을 나타냅니다.
 
-결과적으로 모든 단어 순서에 대한 경우를 고려한 AR Language Modeling을 수행함으로써 양 방향의 컨텍스트를 고려할 수 있고 이 과정에서 어떠한 근사도 들어가지 않았습니다.
+시퀀스 길이 $$T$$에 대해 가능한 순열의 갯수는 $$T!$$개를 갖기 때문에, 하나의 텍스트$$[x_1, x_2, ... x_T]$$에 대해 순열($$Z_T$$)의 모든 경우를 고려하는 것은 불가능합니다. 따라서 하나의 텍스트 시퀀스에 대해 **하나의 permutation 순서**$$(z)$$를 샘플링 하고 해당 순서에 대해 $$p_{\theta}(x)$$를 $$\prod_{t=1}^Tp_{\theta}(x_{z_t} \mid x_{z < t})$$로 분해합니다. 하지만 모델의 파라메터($$\theta$$)는 학습하는 동안 모든 순서에 대해 공유되므로, 많은 양의 데이터를 거치면 모든 순서를 고려한다고 볼 수 있습니다. 따라서 모델은 자연스럽게 $$x_i \neq x_t$$ 인 모든 토큰을 보게 되고, 이 과정에서 어떠한 근사 없이 양방향 컨텍스트를 볼 수 있는 능력을 갖게 됩니다.
 
 ## 3.2. Architectur: Two-Stream Self-Attention for Target-Aware Representation
 
@@ -120,3 +118,13 @@ $$g_{z_t}^{(m)} \leftarrow Attention(Q= g_{z_t}^{(m-1)}, KV=h_{z < t}^{(m-1)}; \
 $$\max_{\theta} \space  \mathbb{E}_{z\backsim Z_T}[\log \space p_{\theta}(x_{z > c} \mid x_{z \leq c})] = \mathbb{E}_{z\backsim Z_T}[\sum\limits_{t=c+1}^{\mid z \mid} \log \space p_{\theta}(x_{z > c} \mid x_{z \leq c})]$$
 
 서로 다른 시퀀스 길이의 입력에 대해 타겟의 시점($$c$$)를 정하기 위해 $$K$$라는 하이퍼파라메터를 도입합니다. 각 시퀀스 별로 $$\lvert z \rvert / (\lvert z \rvert - c) \approx K$$ 를 만족하는 $$c$$ 를 이용하는데, 이 식을 이용하면 약 $$1/K$$ 개의 토큰이 타겟으로 설정됩니다. 또한 학습의 효율성을 위해 $$z_{< c}$$ 에 대해서는 Query representation을 계산하지 않습니다.
+
+## 3.2. Incorporating Ideas from Transformer-XL
+
+Trnasformer-XL은 AR Language Modeling에서 SoTA성능을 보이고 있고, Permutation Language Modeling 또한 넓은 범위의 AR 모델링이기 때문에 해당 방법을 적용할 수 있습니다. Transformer-XL의 핵심 아이디어 두 가지 1)recurrent 매커니즘, 2)relative positional encoding 을 XLNet에 적용합니다. Transformer-XL에 대한 자세한 내용은 [논문](https://arxiv.org/abs/1901.02860) 혹은 [지난 포스트](https://baekyeongmin.github.io/paper-review/transformer-xl-review/)에서 확인할 수 있습니다.
+
+- recurrent 매커니즘: Trnasformer-XL에서는 두 개의 시그먼트 $$\tilde{x} = s_{1 : T}, x=s_{T+1:2T}$$ 로 구성된 긴 시퀀스를 입력으로 받아서 첫 번째 시그먼트$$(\tilde{x})$$의 각 레이어($$m$$) 별 hidden state들, $$h^{(m)}(\tilde{x})$$ 를 메모리로 저장(캐싱)해두고, 두 번째 시그먼트$$(x)$$ 계산시 이를 이용하여 하나의 시그먼트 길이보다 긴 의존성을 학습합니다. XL-Net에 이를 적용하기 위해 첫 번째 시그먼트의 순서 $$\tilde{z}$$와 두 번째 시그먼트의 순서 $$z$$를 정합니다. $$\tilde{z}$$의 순서로 첫 번째 시그먼트의 hidden state, $$(h_{\tilde{z}}^{(m)})$$를 메모리로 저장(캐싱)하고, 이를 이용해서 두 번째 시그먼트$$h_{z}^{(m + 1)}$$을 계산합니다.
+
+$$h_{z_t}^{(m)} \leftarrow Attention(Q=h_{z_t}^{(m - 1)}, KV=[\tilde{h}^{m - 1}, h_{z \leq t}^{m - 1}] ; \theta)$$
+
+- relative positional encoding: Transformer-XL에서 메모리와 현제 시그먼트 사이의 positional encoding을 구분하기 위해, Q와 K사이의 상대적인 위치 차이를 인코딩하는 기법을 이용했습니다. XL-Net에서도 이와 동일한 기법을 이용합니다.
