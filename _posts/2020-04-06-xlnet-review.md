@@ -142,6 +142,62 @@ XL-Net에서도 이와 동일한 입력을 이용하고 50%의 확률로 다른 
 
 ## 4.1 Pretraining and Implementation
 
-### 데이터
+**데이터**: BERT에서 이용했던 `BooksCorpus`, `Wikipedia`에 추가적으로 `Giga5`, `ClueWeb 2020-B`, `Common Crawl`까지 총 5개의 데이터셋을 이용해서 pre-training을 진행했습니다. 이는 SentencePiece를 이용하여 토크나이징 후 총 32.89B 토큰 정도의 양입니다.
 
-BERT에서 이용했던 BooksCorpus, Wikipedia에 추가적으로 Giga5, ClueWeb 2020-B, Common Crawl까지 총 5개의 데이터셋을 이용해서 pre-training을 진행했습니다.
+**하이퍼 파라메터**:
+- 모델 크기: `BERT-Base`/`BERT-Large`와 각각 같은 크기를 갖는 `XLNet-Base`/`XLNet-Large`
+  - BERT와 비교하기 위해 모델 크기 뿐만 아니라 모든 학습 하이퍼 파라메터를 같게 설정한 `XLNet-wikibooks` 모델도 학습했습니다.
+- 시퀀스 길이: 항상 패딩 없이 512길이의 입력을 이용했습니다.(RoBERTa와 같은 설정)
+- 배치 사이즈: 8192를 이용했습니다.
+- Optimizer/Scheduler: Adam weight decay/ linear learning rate decay 이용했습니다.
+- 장치/소요시간: 512 TPU v3로 약 5.5일 소요되었습니다.
+
+**양방향 데이터 파이프라인(Bidirectional Data Pipeline)**: recurrence memory를 이용할 때, 양방향으로 모두 장기 의존성을 학습할 수 있도록 배치를 정방향/역방향의 시퀀스가 반반으로 구성되도록 진행했습니다. 정방향의 경우 현재 시점 이전 시퀀스들이 메모리로 제공되고, 역방향의 경우 현재 시점 이후 시퀀스들이 메모리로 제공되어 양방향의 장기의존성을 학습할 수 있습니다.
+
+**Span기반의 예측**: Language Model의 특정 시점에서 주어진 컨텍스트에 대해 하나의 토큰만 예측하는 것이 아니라 여러 토큰들의 span을 예측합니다. 길이 $$L \in [1, ... ,5]$$을 랜덤으로 선택하고, 연속적인 길이 $$L$$의 span을 선택한 다음 $$KL$$개의 토큰들을 타겟으로 학습합니다.
+
+## 4.2. Fair Comparison with BERT
+
+![comparison_with_bert](/images/XL-Net/comparison_with_bert.png){: width="100%"}{: .center}
+
+동일한 데이터를 사용한 공정한 pre-training환경에서 `BERT`와 `XLNet`을 비교합니다. 위의 표와 같이 SQuAD와 RACE-Reading Comprehension, MNLI, QNLI, RTE, MRPC-NLI 테스크 등 모든 테스크들에서 의미있는 격차로 `XLNet`이 우세한 모습을 보여줍니다.
+
+## 4.3 Comparison with RoBERTa
+
+![comparison_with_roberta](/images/XL-Net/comparison_with_roberta.png){: width="100%"}{: .center}
+
+![glue](/images/XL-Net/glue.png){: width="100%"}{: .center}
+
+![squad](/images/XL-Net/squad.png){: width="100%"}{: .center}
+
+팀 블로그의 글을 쓸 당시에는 BERT와 의미있는 격차를 가진 모델들이 많지 않았는데, 그 이후로 `RoBERTa`, `ALBERT` 등 다양한 모델/방법들이 등장했습니다. 현 시점의 논문은 `XLNet`과 최신 SoTA 방법들과도 비교를 하고 있는데, `ALBERT`의 경우 파라메터 공유를 통해 hidden size를 키워 FLOPs 양 자체가 공정한 비교가 되지 않기 때문에 비교에서 제외했다고 합니다.
+
+`RoBERTa`에서는 `BERT`에서 사용한 학습환경(데이터, NSP, 배치 사이즈 + learning rate 등)을 변경하여 `BERT`를 능가하는 성능을 보여주였습니다. XLNet또한 이와 비등한 양의 데이터와 동일한 하이퍼 파라메터 설정을 이용해 모델을 학습하고 성능을 비교했습니다. NLU(GLUE), MRC(SQuAD, RACE) 등 다양한 자연어 처리 데이터 셋들에서 `RoBERTa` 및 SoTA 모델들을 능가하는 성능을 달성했습니다. 특히 다른 테스크에 비해 더 긴 컨텍스트를 이용한 추론 과정을 거쳐야하는 SQuAD나 RACE와 같은 MRC(QA)테스크에서 눈에 띄는 성능 향상을 보여주는데, 이는 `Transformer-XL`을 백본구조로 이용하여 더 긴 의존성을 학습했기 때문입니다. 
+
+`RoBERTa`에 관한 내용은 [리뷰 글](https://baekyeongmin.github.io/paper-review/roberta-review/) 혹은 [논문](https://arxiv.org/abs/1907.11692)을 통해 확인할 수 있습니다.
+
+## 4.4. Ablation Study
+
+총 3가지 요인에 대해 Ablation Study를 진행합니다.
+
+1. Permuataion Language Modeling objective 자체의 효과 (BERT의 DAE objective와 비교했을 때)
+2. Transformer-XL을 백본구조의 효과
+3. Span-based prediction, 양방향 데이터 파이프라인, Next Sentence Prediction(NSP) 등 세세한 구현적인 디테일의 필요성
+
+![ablation_study](/images/XL-Net/ablation_study.png){: width="100%"}{: .center}
+
+위의 표와 같이 8개의 모델의 성능을 비교했습니다. `BERT-Base`는 기존 BERT모델, `DAE+Transformer-XL`(2행)은 Transformer-XL 백본을 `BERT`의 objective(DAE)로 학습한 모델, 3-8행은 6개의 `XLNet-Base` 변형들 입니다. 모든 모델들은 12-layer의 모델 구조와 `BERT_Base`의 학습 하이퍼 파라메터를 이용하여 학습되었습니다.
+
+1-4행을 보면 성능에 Transformer-XL 구조(1행 vs 2행)와 permutation LM(1행 vs 3,4행)의 기여가 크다는 것을 볼 수 있습니다. 또한 메모리를 제거한 경우, RACE와 같이 긴 컨텍스트 분석 능력을 요구하는 데이터셋에서 더 큰 성능 하락이 있었습니다. 6,7행의 Span 기반의 예측과 양방향 데이터 파이프라인 또한 성능 향상에 기여하는 것을 볼 수 있습니다. 그러나 XLNet의 환경에서 Next Sentence Prediction 문제의 추가는 성능 향상에 의미있는 기여를 하지 못했고, 최종 모델에서 이용하지 않았습니다.
+
+# 5. Reference
+
+- Zihang Dai, Zhilin Yang, Yiming Yang, Jaime Carbonell, Quoc V. Le, Ruslan Salakhutdinov. Transformer-XL: Attentive Language Models Beyond a Fixed-Length Context. ACL, 2019.
+
+- Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. Bert: Pre-training of deep bidirectional transformers for language understanding. NAACL 2019.
+
+- Yinhan Liu, Myle Ott, Naman Goyal, Jingfei Du, Mandar Joshi, Danqi Chen, Omer Levy, Mike Lewis, Luke Zettlemoyer, and Veselin Stoyanov. Roberta: A robustly optimized bert pretraining approach. arXiv preprint arXiv:1907.11692, 2019.
+
+- Zhilin Yang, Zihang Dai, Yiming Yang, Jaime Car- bonell, Ruslan Salakhutdinov, and Quoc V Le. 2019. Xlnet: Generalized autoregressive pretrain- ing for language understanding. NeurIPS 2019.
+
+- [핑퐁팀 블로그](https://blog.pingpong.us/xlnet-review/)
