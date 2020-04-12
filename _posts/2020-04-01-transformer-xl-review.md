@@ -31,7 +31,7 @@ Transformer는 ["attention is all you need"(Vaswani et al., 2017)](https://arxiv
 
 위에서 제시한 문제점을 해결하기 위해, 저자들은 Transformer 구조의 reccurence한 형태를 제시합니다. 이는 연속된 시그먼트를 모델링 할 때, 각 시그먼트를 독립적으로 모델링(기존의 방식)하는 것이 아니라 특정 시그먼트의 모델링에 이전 시그먼트의 정보(각 layer의 hidden state)를 이용하는 방법입니다. 이에 따라 여러 시그먼트사이의 의존성도 파악할 수 있게 되어 고정된 길이의 의존성 문제를 해결하게 되고, context fragment 문제 또한 해결할 수 있게 됩니다.
 
-본 모델은 특정 시점($$t$$) 이전의 토큰들($$x_{<t}$$)이 주어졌을 때, $$t$$ 시점에 등장할 토큰을 예측하는 Language Modeling 문제를 풉니다. 이는 $$P(x) = \prod_tP(x_t \mid x_{<t})$$와 같이 Auto Regressive한 방식으로 나타낼 수 있고, $$P(x)$$의 분포를 추정합니다.
+본 모델은 특정 시점($$t$$) 이전의 토큰들($$x_{ < t}$$)이 주어졌을 때, $$t$$ 시점에 등장할 토큰을 예측하는 Language Modeling 문제를 풉니다. 이는 $$P(x) = \prod_tP(x_t \mid x_{< t})$$와 같이 Auto Regressive한 방식으로 나타낼 수 있고, $$P(x)$$의 분포를 추정합니다.
 일반적으로 Neural Network를 이용한 방법들은 다음과 같습니다.
 1. $$t$$시점 이전의 정보들을 고정된 크기의 벡터로 만듭니다.
 2. 이 벡터와 word embedding을 곱하여 logit을 만듭니다.
@@ -109,7 +109,7 @@ $$\tilde{h}^{n-1}_{\tau} = [SG(m^{n - 1}_{\tau}) ; h^{n-1}_{\tau}]$$
 
 $$q^n_{\tau}, k^n_{\tau}, v^n_{\tau} = h^{n - 1}_{\tau}W^{n\top}_q, \tilde{h}^{n-1}_{\tau}W^{n\top}_{k, E}, \tilde{h}^{n-1}_{\tau}W^{n\top}_v$$
 
-$$A^n_{\tau, i, j} = q^{n\top}_{r, i} k^n_{\tau, j} + q^{n\top}_{r, i} W^n_{k,R}R_{i - j} + u^{\top}k_{\tau, j} + v^{\top}W^n_{k,R}R_{i-j}$$
+$$A^n_{\tau, i, j} = q^{n\top}_{r, i} k^n_{\tau, j} + q^{n\top}_{r, i} W^n_{k,R}R_{i - j} + u^{\top}k_{\tau, j}^n + v^{\top}W^n_{k,R}R_{i-j}$$
 
 $$a^n_{\tau} = Masked\_Softmax(A^n_{\tau})v^n_{\tau}$$
 
@@ -117,7 +117,7 @@ $$o^n_{\tau}=LayerNorm(Linear(a^n_{\tau}) + h^{n-1}_{\tau})$$
 
 $$h^n_{\tau} = Positionwise\_Feed\_Forward(o^n_{\tau})$$
 
-Attention 연산을 제외한 전체적인 알고리즘은 Transformer와 동일합니다. 가장 초기 입력은 $$h^0_{\tau}:= E_{s_{\tau}}$$으로 단어 임베딩 값으로만 구성됩니다. 실제 [저자들의 구현체](https://github.com/kimiyoung/transformer-xl/tree/master/pytorch)를 살펴보면, attention의 종류와 positional encoding의 종류(sinusoidal, learnable 등)에 따라 여러 모듈들이 존재합니다. 모든 토큰 쌍 $$(i,j)$$에 대해 positional encoding을 계산하는 $$W^n_{k, R}R_{i - j}$$는 quadratic의 cost를 요구하기 때문에 이를 빠르게 계산하는 방법 또한 Appendix + 구현에서 제공합니다.
+Attention 연산을 제외한 전체적인 알고리즘은 Transformer와 동일합니다. 가장 초기 입력은 $$h^0_{\tau}:= E_{s_{\tau}}$$으로 단어 임베딩 값으로만 구성되고, 각 레이어별로 주어진 상대위치 값($$R_{i-j}$$)과 이에 대한 가중치($$W_{k,R}^n$$)를 이용해서 위 식에 따라 위치 정보가 포함된 attention 점수($$a_{\tau}^n$$)를 계산합니다. 실제 [저자들의 구현체](https://github.com/kimiyoung/transformer-xl/tree/master/pytorch)를 살펴보면, attention의 종류와 positional encoding의 종류(sinusoidal, learnable 등)에 따라 여러 모듈들이 존재합니다. 모든 토큰 쌍 $$(i,j)$$에 대해 positional encoding을 계산하는 $$W^n_{k, R}R_{i - j}$$는 quadratic의 cost를 요구하기 때문에 이를 빠르게 계산하는 방법 또한 Appendix + 구현에서 제공합니다.
 
 ## 4. Experiments
 
@@ -196,9 +196,3 @@ relative positional encoding의 (b) 텀,  $$E_{x_i}^TW_q^TW_{k, R}R_{i-j}$$ 을 
 - Zihang Dai, Zhilin Yang, Yiming Yang, Jaime Carbonell, Quoc V. Le, Ruslan Salakhutdinov. Transformer-XL: Attentive Language Models Beyond a Fixed-Length Context. In ACL, 2019.
 
 - Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N Gomez, Łukasz Kaiser, and Illia Polosukhin. Attention is all you need. In Advances in neural information processing systems(NeurIPS), 2017.
-
-
-# 수정해야할 사항
-
-- Transformer Decoder를 이용했다는 점 추가
-- 각 layer별로 positional encoding 정보를 계속해서 추가해준다는 점 추가
