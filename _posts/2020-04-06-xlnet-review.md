@@ -11,7 +11,7 @@ author: yeongmin
 comments: true
 ---
 
-[지난 포스트](https://baekyeongmin.github.io/paper-review/transformer-xl-review/)에서 "Transformer-XL"에 대한 리뷰를 진행했었는데요. Language Modeling 테스크에서 장기 의존성 능력을 높이기 위해, Transformer의 제한된 컨텍스트 길이를 recurrence한 구조로 늘려주는 방법이였습니다. 이번 포스트에서는 해당 논문의 후속으로 제안된 ["XLNet: Generalized Autoregressive Pretraining for Language Understanding"](https://arxiv.org/pdf/1906.08237)을 리뷰하려고 합니다. 많은 양의 코퍼스로 Language Modeling에 대한 Pre-training을 진행하고 특정 테스크로 Fine-tuning을 진행하는 방법은 BERT 이후로 NLP 문제를 풀기위한 정석과 같은 방법이 되었습니다. XLNet에서는 BERT와 같이 Masked Language Modeling을 objective로 하는 *Autoencoder(AE) 방식*과 GPT와 같이 *Auto-Regressive(AR)* Language Modeling을 objective로 하는 방식의 장점을 유지하면서 단점을 보완하는 새로운 학습 방식을 제안합니다. 또한 Transformer-XL의 recurrence 알고리즘도 함께 적용하여 BERT를 능가하는 성능을 달성합니다. 약 9개월 전에 XLNet 리뷰를 [팀블로그](https://blog.pingpong.us/xlnet-review/)에 작성 했는데, 최근에 논문이 업데이트 되면서 다시 한 번 공부하면서 글을 작성합니다.
+[지난 포스트](https://baekyeongmin.github.io/paper-review/transformer-xl-review/)에서 "Transformer-XL"에 대한 리뷰를 진행했었는데요. Language Modeling 테스크에서 장기 의존성 능력을 높이기 위해, Transformer의 제한된 컨텍스트 길이를 recurrence한 구조로 늘려주는 방법이였습니다. 이번 포스트에서는 해당 논문의 후속으로 제안된 ["XLNet: Generalized Autoregressive Pretraining for Language Understanding"](https://arxiv.org/pdf/1906.08237)을 리뷰하려고 합니다. 많은 양의 코퍼스로 Language Modeling에 대한 Pre-training을 진행하고 특정 테스크로 Fine-tuning을 진행하는 방법은 BERT 이후로 NLP 문제를 풀기위한 정석과 같은 방법이 되었습니다. XLNet에서는 BERT와 같이 Masked Language Modeling을 objective로 하는 *Autoencoder(AE) 방식*과 GPT와 같이 *Auto-Regressive(AR)* Language Modeling을 objective로 하는 방식의 장점을 유지하면서 단점을 보완하는 새로운 학습 방식을 제안합니다. 또한 Transformer-XL의 recurrence 알고리즘도 함께 적용하여 BERT를 능가하는 성능을 달성합니다. 약 9개월 전에 XLNet 리뷰를 [팀블로그](https://blog.pingpong.us/xlnet-review/)에 작성 했는데, 최근에 논문이 업데이트 되어 다시 한 번 공부하면서 글을 작성합니다.
 
 # 1. Main Idea
 
@@ -172,7 +172,7 @@ XL-Net에서도 이와 동일한 입력을 이용하고 50%의 확률로 다른 
 
 팀 블로그의 글을 쓸 당시에는 BERT와 의미있는 격차를 가진 모델들이 많지 않았는데, 그 이후로 `RoBERTa`, `ALBERT` 등 다양한 모델/방법들이 등장했습니다. 현 시점의 논문은 `XLNet`과 최신 SoTA 방법들과도 비교를 하고 있는데, `ALBERT`의 경우 파라메터 공유를 통해 hidden size를 키워 FLOPs 양 자체가 공정한 비교가 되지 않기 때문에 비교에서 제외했다고 합니다.
 
-`RoBERTa`에서는 `BERT`에서 사용한 학습환경(데이터, NSP, 배치 사이즈 + learning rate 등)을 변경하여 `BERT`를 능가하는 성능을 보여주였습니다. XLNet또한 이와 비등한 양의 데이터와 동일한 하이퍼 파라메터 설정을 이용해 모델을 학습하고 성능을 비교했습니다. NLU(GLUE), MRC(SQuAD, RACE) 등 다양한 자연어 처리 데이터 셋들에서 `RoBERTa` 및 SoTA 모델들을 능가하는 성능을 달성했습니다. 특히 다른 테스크에 비해 더 긴 컨텍스트를 이용한 추론 과정을 거쳐야하는 SQuAD나 RACE와 같은 MRC(QA)테스크에서 눈에 띄는 성능 향상을 보여주는데, 이는 `Transformer-XL`을 백본구조로 이용하여 더 긴 의존성을 학습했기 때문입니다. 
+`RoBERTa`에서는 `BERT`에서 사용한 학습환경(데이터, NSP, 배치 사이즈 + learning rate 등)을 변경하여 `BERT`를 능가하는 성능을 보여주였습니다. XLNet또한 이와 비등한 양의 데이터와 동일한 하이퍼 파라메터 설정을 이용해 모델을 학습하고 성능을 비교했습니다. NLU(GLUE), MRC(SQuAD, RACE) 등 다양한 자연어 처리 데이터 셋들에서 `RoBERTa` 및 SoTA 모델들을 능가하는 성능을 달성했습니다. 특히 다른 테스크에 비해 더 긴 컨텍스트를 이용한 추론 과정을 거쳐야하는 SQuAD나 RACE와 같은 MRC(QA)테스크에서 눈에 띄는 성능 향상을 보여주는데, 이는 `Transformer-XL`을 백본구조로 이용하여 더 긴 의존성을 학습했기 때문입니다.
 
 `RoBERTa`에 관한 내용은 [리뷰 글](https://baekyeongmin.github.io/paper-review/roberta-review/) 혹은 [논문](https://arxiv.org/abs/1907.11692)을 통해 확인할 수 있습니다.
 
