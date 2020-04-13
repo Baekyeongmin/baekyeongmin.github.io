@@ -198,6 +198,6 @@ XL-Net에서도 이와 동일한 입력을 이용하고 50%의 확률로 다른 
 
 - Yinhan Liu, Myle Ott, Naman Goyal, Jingfei Du, Mandar Joshi, Danqi Chen, Omer Levy, Mike Lewis, Luke Zettlemoyer, and Veselin Stoyanov. Roberta: A robustly optimized bert pretraining approach. arXiv preprint arXiv:1907.11692, 2019.
 
-- Zhilin Yang, Zihang Dai, Yiming Yang, Jaime Car- bonell, Ruslan Salakhutdinov, and Quoc V Le. 2019. Xlnet: Generalized autoregressive pretrain- ing for language understanding. NeurIPS 2019.
+- Zhilin Yang, Zihang Dai, Yiming Yang, Jaime Car- bonell, Ruslan Salakhutdinov, and Quoc V Le. 2019. Xlnet: Generalized autoregressive pretraining for language understanding. NeurIPS 2019.
 
 - [핑퐁팀 블로그](https://blog.pingpong.us/xlnet-review/)
