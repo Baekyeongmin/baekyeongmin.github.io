@@ -49,3 +49,9 @@ Natural Language Processing, Computer Vision, Machine Learning, Deep Learning
 {% assign number_of_posts = 0 %} {% for post in site.posts %}{% assign currnet_year = post.date | date: "%Y" %}{% assign previous_year = post.previous.date | date: "%Y" %}{% assign number_of_posts = number_of_posts | plus: 1 %}{% if currnet_year != previous_year %}
 
 - {{ currnet_year }}년 : {{ number_of_posts }}개의 포스트{% assign number_of_posts = 0 %}{% endif %}{% endfor %}
+
+**BERT Series Review**: [BERT(NAACL 2019)](https://baekyeongmin.github.io/paper-review/bert-review/), [MT-DNN(arXiv)](https://baekyeongmin.github.io/paper-review/mt-dnn/), [RoBERTa(arXiv)](https://baekyeongmin.github.io/paper-review/mt-dnn/), [ALBERT(ICLR 2020)](https://baekyeongmin.github.io/paper-review/albert-review/), [StructBERT(ICLR 2020)](https://baekyeongmin.github.io/paper-review/structbert-review/), [Transformer-XL(ACL 2019)](https://baekyeongmin.github.io/paper-review/transformer-xl-review/), [XLNet(NeurIPS 2019)](https://baekyeongmin.github.io/paper-review/xlnet-review/)
+
+**Dialogue Modeling(System) Review**: [Transformer for Learning Dialogue(ACL 2020)](https://baekyeongmin.github.io/paper-review/hierarchical-multiparty-transformer/), [Masked Hierarchical Transformer(AAAI 2020)](https://baekyeongmin.github.io/paper-review/masked-hierarchical-transformer-review/), [Graph-Structured Network(IJCAI 2019)](https://baekyeongmin.github.io/paper-review/GSN-review/), [ReCoSa(ACL 2019)](https://baekyeongmin.github.io/paper-review/ReCoSa-review/), [DialogueRNN(AAAI 2019)](https://baekyeongmin.github.io/paper-review/dialogueRNN-review/), [SoundingBoard(Alexa Prize 2017 1st prize)](https://baekyeongmin.github.io/alexa-prize/sounding-board-review/)
+
+**Deep Learning Paper Review**: [Graph Convolutional Network (ICLR 2017)](https://baekyeongmin.github.io/paper-review/gcn-review/)
