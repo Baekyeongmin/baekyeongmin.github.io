@@ -57,7 +57,7 @@ $$training \space objective: \max_{\theta} \space \log p(\overline{X} \mid \wide
 
 위에서 제시한 두 가지 Language Modeling의 단점을 보완하고 장점을 살릴 수 있는 새로운 objective와 이를 학습할 수 있는 모델 구조를 제시합니다.
 
-# 3.1. Objective: Permutation Language Modeling
+## 3.1. Objective: Permutation Language Modeling
 
 특정한 가정 없이 모델링을 표현할 수 있는 AR모델의 이점과 양방향의 컨텍스트를 이용할 수 있는 AE모델의 이점을 모두 살리면서 나머지 단점/한계점들을 보완하는 **Permutation Language Modeling**이라는 새로운 objective를 제시합니다.
 

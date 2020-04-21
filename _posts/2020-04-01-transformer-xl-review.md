@@ -127,7 +127,7 @@ Attention 연산을 제외한 전체적인 알고리즘은 Transformer와 동일
 
 <br>
 
-## 4. Experiments
+# 4. Experiments
 
 ## 4.1 Main Result
 
