@@ -13,11 +13,15 @@ comments: true
 
 이번 글에서는 ["Transformers to Learn Hierarchical Contexts in Multiparty Dialogue for Span-based Question Answering"](https://arxiv.org/abs/2004.03561)을 리뷰합니다. Transformer 기반의 컨텍스트를 반영한 임베딩을 만드는 접근법들(BERT, RoBERTa, XLNet 등)은 QA의 SOTA를 갱신해왔습니다. 하지만 일반적인 도메인에서 학습된 모델들로 대화를 잘 표현하기는 어렵고, 주어진 대화에 대한 QA 테스크에서 저조한 성능을 보입니다. 이 원인으로 두 가지를 꼽을 수 있습니다. 1) 대화들은 구어체인 반면에 대부분의 모델들은 격식이 갖춰진 문어체로 학습되었습니다. 2) 한 명의 저자가 관련이 있는 토픽에 관해쓴 wiki나 뉴스 기사와 같은 글과 달리 대화는 다른 주제와 각자의 방식을 가진 여려명의 화자들의 발화로 구성됩니다. 따라서 단순히 합치는 방법(concat)을 통해 보다는 내부적으로 서로 연결되어있는 방식의 표현법이 필요합니다. 본 논문에서는 이를 해결하기 위해 멀티파티(여러 명의 화자) 대화에서 "컨텍스트를 더 잘 이해할 수 있는" 토큰과 발화의 계층적 임베딩을 학습하는 Transformer를 제안합니다.
 
+<br>
+
 # 1. Main Idea
 
 - 토큰 단위와 문장 단위의 임베딩의 질을 높일 수 있는 대화체에 적합한 새로운 pre-training 테스크(토큰 단위, 발화 단위의 LM, 발화 순서 예측)를 제시합니다.
 - pre-training으로부터 생성된 계층적인 임베딩의 이점을 잘 이용할 수 있고, span-based QA에 적합한 새로운 Multitask learning Finue-tuning 접근법을 제안합니다.
 - 이 방법들을 이용하여 이전 SOTA인 BERT와 RoBERTa를 큰 격차로 능가했습니다.
+
+<br>
 
 # 2. Transformes for Learning Dialogue
 
@@ -59,6 +63,8 @@ Fine-tuning은 발화 ID 예측과 token span 예측 문제(QA)를 함께 Multit
 
 모든 발화의 임베딩 $$E_i$$에 대해 $$(E_q', E_i')$$쌍을 새로운 Multi-head Attention(MHA) layer로 인코딩합니다. $$E_q', E_i'$$는 $$E_q, E_i$$ 에서 $$[CLS]$$ 를 제외한 나머지 토큰들의 임베딩입니다. 이를 통해 각 발화마다 결과 값 $$T_1^a, ... T_m^a, T_i^a = \{ t^s_i, t^w_{i1}, ..., t^w_{im} \}$$를 얻을 수 있습니다. 전형적인 QA문제와 동일하게 구해진 토큰단위의 임베딩($$T_i^a$$)와 span 시작점/끝점 분류기를 이용해 span을 예측합니다. 여러 발화에서 정답이 예측될 수 있는데, 이 경우 발화 ID 예측에서 가장 높은 점수를 받은 발화의 답을 선택합니다.
 
+<br>
+
 # 3. Experiments
 
 ## 3.1. Corpus
@@ -85,6 +91,8 @@ BERT와 RoBERTa의 가중치는 본 논문의 모든 실험에 전이학습되�
 
 위의 표와 같이 본 논문에서 제시한 두 가지 새로운 pre-training objective와 fine-tuning에서 이용하는 발화 ID 예측 모두 효과가 있음을 알 수 있습니다. 특히 발화 ID 예측 테스크는 다른 pre-training objective와 결합될수록 좋은 성능을 보였습니다. 이를 통해 fine-tuning 단계에서도 적절한 방법을 선택하면 더 좋은 성능을 얻을 수 있음을 알 수 있습니다.
 
+<br>
+
 # 4. 마무리
 
 이 논문은 이번 ACL 2020에 어셉되었다고 나와있는데, 논문 길이로 봤을 때 아마 short paper일 듯하다. 그렇다 보니 아무래도, 논문에 명시되지 않은 디테일이 있어서 몇가지 궁금한 점이 남는다.
@@ -93,6 +101,8 @@ BERT와 RoBERTa의 가중치는 본 논문의 모든 실험에 전이학습되�
 2. MHA에서 KQV가 어떻게 구성되는지에 대한 명시도 없다. $$K,V=E_q$$, $$Q=E_i$$ 이여서, 각 발화 토큰들과 질문 토큰사이의 어텐션으로 계산하는 것으로 예측해볼 수 있다.
 
 뭔가 이러한 부분들 때문에 상세한 구현에 있어서 "?"가 남는 부분이 많을 것 같고, 바로 적용해보기엔 무리가 있을 것 같다.
+
+<br>
 
 # 5. Reference
 

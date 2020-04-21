@@ -14,8 +14,12 @@ comments: true
 
 이번 글에서는 ACL 2019에서 발표된 ["Transformer-XL: Attentive Language Models Beyond a Fixed-Length Context"](https://arxiv.org/abs/1901.02860)를 리뷰하려고 합니다. 본 논문은 기존의 Transformer 구조를 이용한 고정된 길이(Fixed-Length) Language Model의 한계점을 지적하고 더 긴 의존성을 이용할 수 있는 새로운 방법을 제시합니다. 또한 다양한 NLU 테스크들에서 SOTA성능을 보이고 있는 [XLNet](https://arxiv.org/abs/1906.08237)과 동일한 저자들이 작성하였고, Transformer-XL의 많은 부분을 XLNet에서 이용하고 있습니다.
 
+<br>
+
 # 1. Main Idea
 기존의 Transformer기반의 LM(vanilla transformer model)은 코퍼스를 여러 개의 시그먼트들로 나누고, 아래 그림과 같이 각 시그먼트별로 *"해당 시그먼트내에서"* Langauge Modeling의 Auto-regressive한 Objective를 학습했습니다. 따라서 시그먼트의 고정된 최대 길이 내에서만 학습이 이루어지므로, 해당 범위를 벗어나는 long-term dependancy는 학습할 수 없습니다. 또한 각 시그먼트는 문장 등의 의미있는 단위로 나눠진 것이 아닌 단순하게 연속적인 symbol들(token, word 등)의 조각들로 구성되기 때문에 해당 시그먼트의 처음 몇개의 symbol들을 예측하기에는 필요한 정보의 양이 부족한 *context fragmentation* 문제가 발생합니다. 저자들은 이러한 vanilla Transformer가 갖고 있는 문제들을 해결하기 위해 Transformer-XL(extra long)이라는 방법을 제시합니다.
+
+<br>
 
 # 2. Transformer
 
@@ -26,6 +30,8 @@ Transformer는 ["attention is all you need"(Vaswani et al., 2017)](https://arxiv
 ["Character-level language modeling with deeper self-attention" Al-Rfou et al. 2018)](https://arxiv.org/abs/1808.04444?source=post_page---------------------------)에서는 Transformer구조로 character단위의 Language Modeling 문제를 풀었는데, 기존의 RNN기반의 모델들을 큰 격차로 능가하는 성능을 보여주었습니다. 하지만 이 방법은 다음과 같은 문제를 갖습니다.
 1. 고정된 길이의 시그먼트를 입력으로 이용하기 때문에, 해당 길이 이상의 의존성을 학습하기 힘들다.
 2. 각 시그먼트는 의미적 경계(문장 등)을 고려하지 않고 단순히 연속적인 token들을 잘라서 이용했기 때문에, 시그먼트의 시작 몇 토큰을 예측하기에는 정보량이 부족하다. - *context fragmentation*문제
+
+<br>
 
 # 3. Transformer XL
 
@@ -119,6 +125,8 @@ $$h^n_{\tau} = Positionwise\_Feed\_Forward(o^n_{\tau})$$
 
 Attention 연산을 제외한 전체적인 알고리즘은 Transformer와 동일합니다. 가장 초기 입력은 $$h^0_{\tau}:= E_{s_{\tau}}$$으로 단어 임베딩 값으로만 구성되고, 각 레이어별로 주어진 상대위치 값($$R_{i-j}$$)과 이에 대한 가중치($$W_{k,R}^n$$)를 이용해서 위 식에 따라 위치 정보가 포함된 attention 점수($$a_{\tau}^n$$)를 계산합니다. 실제 [저자들의 구현체](https://github.com/kimiyoung/transformer-xl/tree/master/pytorch)를 살펴보면, attention의 종류와 positional encoding의 종류(sinusoidal, learnable 등)에 따라 여러 모듈들이 존재합니다. 모든 토큰 쌍 $$(i,j)$$에 대해 positional encoding을 계산하는 $$W^n_{k, R}R_{i - j}$$는 quadratic의 cost를 요구하기 때문에 이를 빠르게 계산하는 방법 또한 Appendix + 구현에서 제공합니다.
 
+<br>
+
 ## 4. Experiments
 
 ## 4.1 Main Result
@@ -173,6 +181,8 @@ One Billion Word 데이터셋은 문장들을 섞었기 때문에, long-term dep
 
 위 표와 같이 long-term dependency가 중요하지 않은 테스트에서도 recurrence를 이용한 경우에 더 좋은 성능을 얻었습니다. 또한 짧은 시퀀스에 대해 Shaw et al.,(2018)의 인코딩 방식 보다 뛰어난 성능을 보였습니다. 결과적으로 recurrence 구조는 context fragmentation 문제를 해결한다고 볼 수 있습니다.
 
+<br>
+
 # 5. Appendix - Efficient Computation of the Attention with Relative Positional Embedding
 
 모든 Query, Key 토큰 쌍 (i,j)에 대해 $$W_{k, R}R_{i - j}$$를 계산하면, 나이브한 방식으로는 quadratic의 비용을 갖습니다. 따라서 linear의 cost를 갖는 방법을 소개합니다.
@@ -190,6 +200,8 @@ relative positional encoding의 (b) 텀,  $$E_{x_i}^{\top}W_q^{\top}W_{k, R}R_{i
 ![efficient_3](/images/Transformer-XL/efficient_3.png){: width="80%"}{: .center}
 
 첫번 째 그림에서 만들었던 $$Q$$와 query 벡터 $$E^{\top}W_q^{\top}$$를 곱하면 $$\tilde{B}$$를 얻을 수 있습니다. $$\tilde{B}$$의 각 행을 왼쪽으로 shift하면, $$\tilde{B}$$와 동일한 행렬을 만들 수 있습니다. 결과적으로 $$qQ^{\top}$$의 행렬곱과 `left-shift` 연산을 진행하면 (b) 텀을 계산할 수 있습니다.
+
+<br>
 
 # 7. Reference
 

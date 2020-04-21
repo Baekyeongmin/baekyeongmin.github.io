@@ -13,6 +13,8 @@ comments: true
 
 이번 글에서는 ["RoBERTa: A Robustly Optimized BERT Pretraining Approach"](https://arxiv.org/abs/1907.11692)를(GLUE 벤치마크 88.5/4등)리뷰하려고 합니다. Self-Supervised 기반의 학습 방식은 Pre-training에서 많은 시간/리소스가 소요되기 때문에 BERT 및 이후 접근법들을 엄밀하게 비교하기 힘들고, 어떤 Hyper Parameter가 결과에 많은 영향을 미쳤는지 검증하기 힘듭니다. 본 논문에서는 여러 실험을 통해 데이터의 양 및 Key-Hyperparameter의 영향을 분석합니다.
 
+<br>
+
 # Main Idea
 
 BERT는 아직 Undertrain되어 있고, Pre-training 과정에서 다음과 같은 Hyper-parameter의 튜닝으로 더 좋은 결과를 얻을 수 있었습니다.
@@ -20,6 +22,8 @@ BERT는 아직 Undertrain되어 있고, Pre-training 과정에서 다음과 같�
 - Pre-training Objective: Next Sentence Prediction(NSP)테스크를 제거합니다.
 - Sequence Length: BERT는 짧은 입력 문장들을 이용하는 downstream 테스크를 대비하여 pre-training 시, 0.1의 확률로 최대 길이보다 더 짧은 길이의 데이터를 이용합니다. 이러한 로직을 제거하고 최대 길이의 데이터로만 학습을 진행합니다.
 - Masking strategy: Masking을 진행할 때, BERT의 static masking이 아닌 입력을 만들 때 마다 Masking을 다시 하는 "Dynamic masking"전략을 이용했습니다.
+
+<br>
 
 # Background(BERT)
 
@@ -102,6 +106,8 @@ Byte-pair Encoding(BPE)은 Word 단위와 Character 단위의 중간에 있는 t
 
 BERT에서는 학습 코퍼스에 휴리스틱한 토크나이징을 진행하고 character-level의 BPE를 학습시켰고, 30k 사이즈의 사전을 이용했습니다. 본 논문에서는 [GPT(Radford et al., 2018)](https://s3-us-west-2.amazonaws.com/openai-assets/research-covers/language-unsupervised/language_understanding_paper.pdf)에서 소개한 byte단위의 BPE를 학습했고, 50k 사이즈의 사전을 이용했습니다. (사전의 크기가 커져서 base 15M large 20M의 추가적인 파라메터가 이용됩니다.) 선행 연구에서 Byte단위가 character 단위에 비해 조금 안좋은 결과를 보였지만, 저자들은 universal encoding의 이점 때문에 남은 실험들에서 Byte단위를 이용하기로 결정했습니다.
 
+<br>
+
 # RoBERTa
 
 위에서 진행했던 실험결과들의 최상의 조합으로 **R**obustly **o**ptimized **BERT** **a**pproach(RoBERTa)를 소개합니다. RoBERTa에 이용된 설정은 다음과 같습니다.
@@ -132,6 +138,8 @@ BERT에서는 학습 코퍼스에 휴리스틱한 토크나이징을 진행하�
 
 이외에도 SQuAD와 RACE 벤치마크 결과에 대한 설명도 있었지만 해당 테스크들 또한 SOTA달성으로 GLUE와 비슷한 양상이기 때문에 생략하겠습니다.
 
+<br>
+
 # Reference
 
 - Yinhan Liu, Myle Ott, Naman Goyal, Jingfei Du, Mandar Joshi, Danqi Chen, Omer Levy, Mike Lewis, Luke Zettlemoyer, and Veselin Stoyanov. RoBERTa: A robustly optimized BERT pretraining approach. arXiv, 2019
@@ -143,6 +151,3 @@ BERT에서는 학습 코퍼스에 휴리스틱한 토크나이징을 진행하�
 - Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N Gomez, Łukasz Kaiser, and Illia Polosukhin. Attention is all you need. In Advances in neural information processing systems(NeurIPS), 2017.
 
 - Alec Radford, Jeffrey Wu, Rewon Child, David Luan, Dario Amodei, and Ilya Sutskever. 2019. Language models are unsupervised multitask learners. Technical report, OpenAI.
-
-
-

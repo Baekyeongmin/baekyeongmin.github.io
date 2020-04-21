@@ -13,9 +13,13 @@ comments: true
 
 [지난 포스트](https://baekyeongmin.github.io/paper-review/transformer-xl-review/)에서 "Transformer-XL"에 대한 리뷰를 진행했었는데요. Language Modeling 테스크에서 장기 의존성 능력을 높이기 위해, Transformer의 제한된 컨텍스트 길이를 recurrence한 구조로 늘려주는 방법이였습니다. 이번 포스트에서는 해당 논문의 후속으로 제안된 ["XLNet: Generalized Autoregressive Pretraining for Language Understanding"](https://arxiv.org/pdf/1906.08237)을 리뷰하려고 합니다. 많은 양의 코퍼스로 Language Modeling에 대한 Pre-training을 진행하고 특정 테스크로 Fine-tuning을 진행하는 방법은 BERT 이후로 NLP 문제를 풀기위한 정석과 같은 방법이 되었습니다. XLNet에서는 BERT와 같이 Masked Language Modeling을 objective로 하는 *Autoencoder(AE) 방식*과 GPT와 같이 *Auto-Regressive(AR)* Language Modeling을 objective로 하는 방식의 장점을 유지하면서 단점을 보완하는 새로운 학습 방식을 제안합니다. 또한 Transformer-XL의 recurrence 알고리즘도 함께 적용하여 BERT를 능가하는 성능을 달성합니다. 약 9개월 전에 XLNet 리뷰를 [팀블로그](https://blog.pingpong.us/xlnet-review/)에 작성 했는데, 최근에 논문이 업데이트 되어 다시 한 번 공부하면서 글을 작성합니다.
 
+<br>
+
 # 1. Main Idea
 
 Language Modeling은 특별한 레이블링 작업이 필요 없는 비지도 학습 방식이고, 최근에 언어 자체를 이해하기 위한 pre-training 방법으로 자주 이용됩니다. BERT이전의 방법들은 대부분 Auto-Regressive(AR)방식으로 주어진 컨텍스트에 대해 다음 토큰을 맞추는 **단방향**의 학습을 진행했습니다. BERT에서는 이를 해결하기 위해 특정 토큰을 `[MASK]` 로 치환하고 이를 예측함으로써(Denoising Autoencoder), **양방향**의 정보를 이용할 수 있었습니다. 하지만 1) `[MASK]`는 pre-training 에만 등장하는 토큰으로 fine-tuning 과 불일치 하고, 2) `[MASK]` 토큰 사이의 의존관계가 무시되는 문제가 발생합니다. 본 논문에서는 이를 해결하기 위해, *양방향의 정보를 이용할 수 있는 AR Language Modeling* 학습법을 제안합니다.
+
+<br>
 
 # 2. AR, AE Language Modeling
 
@@ -46,6 +50,8 @@ $$likelihood: p(\overline{X} \mid \widehat{X}) \color{red}{\approx} \color{black
 $$training \space objective: \max_{\theta} \space \log p(\overline{X} \mid \widehat{X}) = \max_{\theta} \space \sum\limits^T_{t=1} m_t \log p(x_t \mid \widehat{x}) $$
 
 즉 [`"나는"`, $$[MASK]_1$$, `"를"`, `"쓰고"`, $$[MASK]_2$$, `"."`]이 주어 졌을 때, 원래 토큰 분포를 예측하는 $$P([MASK]_1 \mid 나는, 를, 쓰고, [MASK]_2, .)P([MASK]_2 \mid 나는, [MASK]_1, 를, 쓰고, .)$$를 학습합니다. 이 방법은 AR에 비해 양방향 컨텍스트를 고려하여 학습할 수 있다는 장점이 있습니다. 하지만 [MASK]는 기존 언어 분포에 없는 노이즈이고, pre-training시에만 이용되기 때문에 다른 테스크들과 불일치 문제가 발생합니다. 또한 각 [MASK]들 이 독립적으로 예측되어(3번째 식의 빨간색 근사) [MASK] 토큰들 사이의 의존관계를 학습할 수 없습니다.
+
+<br>
 
 # 3. XL-Net
 
@@ -138,6 +144,8 @@ XL-Net에서도 이와 동일한 입력을 이용하고 50%의 확률로 다른 
 - 위에서 설명했던 메모리는 시그먼트A, 시그먼트B가 연속일 때에만 이용합니다. (연속 되지 않으면 서로 다른 문단으로 부터 추출되었기 때문에 서로 의존관계를 학습할 필요가 없습니다.)
 - BERT와 유사하게 서로 다른 시그먼트를 구분할 수 있도록 시그먼트 인코딩을 추가합니다. 각 어텐션 헤드별로 같은 시그먼트에 속하는 토큰 $$i,j$$사이의 시그먼트 인코딩 $$s_{ij}=s_{+}$$과 아닌 경우 $$s_{ij}=s_{-}$$를 학습가능한 파라메터로 둬서 어텐션 계산시 반영합니다. $$i$$ 번째 쿼리 토큰과 $$j$$ 번째 키 토큰 사이의 어텐션을 계산할 때, $$a_{ij}=(q_i + b)^{\top}s_{ij}$$를 원래의 어텐션 값에 더해줍니다. (최종 softmax 이전에 더해줍니다.) $$q_i$$는 쿼리 벡터, $$b$$는 헤드 별 학습가능한  바이어스를 $$s_ij$$는 시그먼트 인코딩 입니다. 또한 이 인코딩은 상대적인 것(같은 시그먼트인지/아닌지)이기 때문에 입력이 두 개보다 많은 경우에도 이용할 수 있습니다.
 
+<br>
+
 # 4. Experiments
 
 ## 4.1 Pretraining and Implementation
@@ -189,6 +197,8 @@ XL-Net에서도 이와 동일한 입력을 이용하고 50%의 확률로 다른 
 위의 표와 같이 8개의 모델의 성능을 비교했습니다. `BERT-Base`는 기존 BERT모델, `DAE+Transformer-XL`(2행)은 Transformer-XL 백본을 `BERT`의 objective(DAE)로 학습한 모델, 3-8행은 6개의 `XLNet-Base` 변형들 입니다. 모든 모델들은 12-layer의 모델 구조와 `BERT_Base`의 학습 하이퍼 파라메터를 이용하여 학습되었습니다.
 
 1-4행을 보면 성능에 Transformer-XL 구조(1행 vs 2행)와 permutation LM(1행 vs 3,4행)의 기여가 크다는 것을 볼 수 있습니다. 또한 메모리를 제거한 경우, RACE와 같이 긴 컨텍스트 분석 능력을 요구하는 데이터셋에서 더 큰 성능 하락이 있었습니다. 6,7행의 Span 기반의 예측과 양방향 데이터 파이프라인 또한 성능 향상에 기여하는 것을 볼 수 있습니다. 그러나 XLNet의 환경에서 Next Sentence Prediction 문제의 추가는 성능 향상에 의미있는 기여를 하지 못했고, 최종 모델에서 이용하지 않았습니다.
+
+<br>
 
 # 5. Reference
 

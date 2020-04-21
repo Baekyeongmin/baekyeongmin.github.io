@@ -13,10 +13,14 @@ comments: true
 
 BERT를 시작으로 NLP의 Imagenet이라 불리며 Self-supervised Learning 방법이 대부분의 NLP task들에서 SOTA(State-of-the-art) 성능을 보여주고 있습니다. 최근에는 BERT의 한계점/문제점들을 분석&해결하여 더 높은 성능을 가지는 모델 및 학습방법들이 연구되고 있습니다. 이번 글에서는 현재(10월 13일기준) Natural Language Understanding의 대표적인 벤치마크인 GLUE(General Language Understanding Evaluation) 리더보드에서 종합 89.4의 점수를 기록하면서 1등을 하고 있는 ["ALBERT: A Lite BERT for self-supervised learning of language representations"](https://openreview.net/pdf?id=H1eA7AEtvS)를 리뷰하려고 합니다. (ICLR 2020 Under review paper)
 
+<br>
+
 # Main Idea
 1. BERT등의 pre-training → fine-tuning 구조의 이전 논문들에서 모델사이즈의 증가는 성능 향상을 가져왔습니다. 그러나 모델사이즈가 커질 수록 memory/latency이슈가 생기고 학습속도가 느려지기 때문에 더 이상 늘리는 것은 불가능합니다. 이를 해결하기 위해 새로운 parameter reduction 기술을 소개 하고자 합니다.
 2. BERT-Large에서 hidden size를 2048로 늘려서 실험을 진행했을 때, 기존 모델(BERT-Large)보다 훨씬 못한 성능을 보여주었습니다. 이는 BERT 구조 및 학습 전략을 따른다면 파라메터 수를 늘리는 것도 한계가 있다는 것을 의미합니다. Hidden size를 늘리면서도 모델을 안정적으로 학습할 수 있는 방법을 제시합니다.
 3. 좋은 sentence embedding을 학습하기 위해 skip-thought, Fastsent등의 학습 방법들이 연구되었습니다. (BERT의 Next Sentence Prediction도 여기에 해당됩니다.) 내부 문장(inter-sentence)들 간의 관계/일관성을 파악할 수 있는 새로운 self-supervised loss를 제시합니다.
+
+<br>
 
 # ALBERT: A Lite BERT
 
@@ -43,6 +47,8 @@ BERT는 두 가지 loss(Masked LM + Next Sentence Prediction)를 이용하는데
 본 논문에서는 또 다른 부분을 지적합니다. 일반적으로 BERT pre-training시에 NSP의 정확도는 95%이상으로 수렴하게 되는데,이는 이 문제가 매우 쉽게 풀리기 때문입니다. NSP를 위한 negative sampling 은 다른 도큐먼트들 중 random으로 선택하는  방식을 이용하는데, 해당 방식은 각 segment의 토픽만 제대로 파악하면 바로 맞출 수 있는 문제입니다. 따라서 문장들 간의 내부 연관성을 파악하는 것(본래 NSP의 목적)이 아닌 단순 토픽 선택 문제 정도가 됩니다.
  
 이 문제점을 해결하기 위해, 내부 문장간의 관계를 이해할 수 있는 새로운 Sentence-Order Prediction(SOP) loss를 소개합니다. positive는 BERT와 동일하게 유지하고, 기존의 연속적인 segment들의 앞뒤 순서를 바꿔서 negative sample을 만듭니다. 즉 한 도큐먼트 내에서 해당 문장들의 순서가 올바른지(Positive), 반대로 되어있는지(Negative)를 구분하는 문제를 풀게 됩니다. 이렇게 되면 토픽이 아닌 문장의 내부 구조 자체를 이해 해야만 문제를 풀 수 있게 됩니다. (부가적으로 동일 도큐먼트 내에서 순서를 섞는 작업만 이루어지기 때문에 다른 논문들에서 제시한 attention 문제도 해결하게 됩니다.)
+
+<br>
 
 # Experiment Detail
 ## 1. Model Setup
@@ -117,9 +123,12 @@ SQuAD를 제외한 모든 테스크에서 성능향상이 있었는데, SQuAD는
 
 저자들은 ALBERT-xxLarge가 1M step이후에도 overfitting되지 않았기 때문에, 모델의 능력을 조금이라도 더 향상시키기 위해 dropout을 제거했습니다. 위 그래프와 같이 Dropout을 제거함으로써, MLM성능이 크게 향상되었고, Downstream task에서도 성능향상을 보였습니다.
 
+<br>
+
 # Review
 BERT 기반으로 NLP가 엄청난 발전을 하고 있는데, 최근에 BERT를 능가했던 방법들 중 XLNet이후로 가장 신선했던 접근법이었던 것 같습니다. 앞으로도 Langauge modeling 및 Auxiliary objective 에 대해 조금 더 다양한 시도들이 이루어지지 않을까 라는 생각이 들었습니다. BERT가 세상에 등장한지 1주년이 지났는데, 앞으로는 생각보다 훨씬 빠르게 발전할 것 같다는 느낌을 받았습니다. 한편으로는 이정도 규모의 연구는 점점 TPU가 없으면 시도조차 할 수 없는 것 같아서 경량화 기법 및 학습 속도에 관한 연구도 지속적으로 이루어질 것 같습니다.
 
+<br>
 
 # Reference
 - ALBERT: A Lite BERT For Self-Supervised Learning of Language Representations, 2019.

@@ -15,8 +15,12 @@ Language model로 pre-training한 후에 특정 테스크에 적용하는 방법
 
 ![comparison](/images/BERT/comparison.png){: width="100%"}{: .center}
 
+<br>
+
 # 1. Main Idea
 ["BERT"](https://arxiv.org/abs/1810.04805)는 **B**idirectional **E**ncoder **R**epresentation from **T**ransformer의 약자로, 표현 그대로 pre-training된 양방향 트렌스포머 인코더로 부터 얻어진 representation을 이용하여 특정 테스크를 해결하는 방법입니다. 이때 기존의 Pre-training의 Language Modeling은 단방향 컨텍스트 만을 이용했는데, 이를 해결할 수 있는 **"Masked Language Modeling"**이라는 새로운 방식의 unsupervised objective를 소개합니다. 여러 문장들 사이의 관계를 학습할 수 있는 **Next Sentence Prediction** objective 또한 제시합니다. 이를 이용해 많은 양의 코퍼스로 트렌스포머 인코더를 pre-train하고, GLUE를 포함한 여러 NLP 테스크들에서 fine-tuning 하여 대부분의 밴치마크에서 SOTA를 기록했습니다.
+
+<br>
 
 # 2. BERT
 
@@ -117,6 +121,8 @@ BookCorpus(800M 단어)와 영어 위키피디아(2500M 단어)를 이용하여 
 - Span-level의 예측 문제(위 그림의 좌측 하단): SQuAD와 같은 QA는 `본문`과 `질문`을 주고 해당 질문에 대한 답을 본문에서 찾는 문제입니다.(주로 정답의 시작 index와 끝 index를 예측합니다.) 이 경우 질문과 본문을 각 시그먼트에 대응시킨  `[CLS]` + `질문` + `[SEP]` + `본문` + `[SEP]`와 같은 입력의 형식을 이용합니다. 그리고 정답의 시작점을 예측하는 분류기, 정답의 끝점을 예측하는 분류기를 이용해 `본문`에 해당하는 최종 representation들(위 그림에서 $$T_1', ... T_M'$$)을 시작/끝점으로 분류합니다. (inference시에는 시작점이 끝점보다 앞에 있어야 하는 제약사항 들을 추가적으로 이용합니다.)
 - Token-level의 예측 문제(위 그림의 우측 하단): NER(Named Entity Recognition, 각 토큰이 어떤 Named Entitiy에 속하는지 분류하는 문제)과 같이 각 토큰별로 예측을 해야하는 문제는 각 토큰별 최종 출력($$T_1, ... T_N$$)을 이용합니다.
 
+<br>
+
 # 3. Experiment & Result
 
 ## 3.1. BERT vs Open AI GPT
@@ -173,6 +179,8 @@ GLUE 뿐만아니라 SQuAD, NER, SWAG등의 데이터셋에서도 기존의 성�
 ![ablation_2](/images/BERT/ablation_3.png){: width="70%"}{: .center}
 
 Pre-training 스텝이 많아질수록 fine-tuning 성능이 좋아집니다. 또한 MLM이 LTR에 비해 pre-training 단계의 수렴은 느리지만, finr-tuning테스크에서는 초반부부터 즉각적으로 높아지는 것을 볼 수 있습니다.
+
+<br>
 
 # 4. Reference
 

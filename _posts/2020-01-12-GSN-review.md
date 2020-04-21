@@ -15,6 +15,8 @@ comments: true
 
 이전 글에서 [Masked Hierarchical Transformer](https://baekyeongmin.github.io/paper-review/masked-hierarchical-transformer-review/)에 대해 리뷰했었는데요, 해당 논문의 레퍼런스들을 살펴보다가 대화를 Graph로 모델링하려는 또 다른 논문을 발견했습니다. 이번 포스트에서는 대화 그래프와 화자 그래프를 이용하여 response generation 문제를 풀고자 했던 [GSN: A Graph-Structured Network for Multi-Party Dialogues (IJCAI 2019)](https://arxiv.org/pdf/1905.13637.pdf)을 리뷰하려고 합니다.
 
+<br>
+
 # Main Idea
 
 기존의 대화 모델링 방법들(HRED 등)은 대화를 발화들의 Sequential하게 구성되었다고 가정하고 모델링을 진행합니다. 하지만 Multi-Party Dialogue(단톡방과 같은 형태)에서는 화자가 여러명이기 때문에 여러 대화가 병렬적으로 동시에 상호작용할 수 있고, 이 가정이 유효하지 않습니다. 본 논문은 이러한 대화 구조를 모델링 하기 위해 대화 및 화자 정보를 그래프의 형태로 모델링합니다.
@@ -23,11 +25,15 @@ comments: true
 
 ![dialogue](/images/GSN/dialogue.png){: width="80%"}{: .center}
 
+<br>
+
 # HRED
 
 본 논문에서 베이스라인 모델로 제시하고있는 [Hierarchical Reccurent Encoder-Decoder(HRED)](https://arxiv.org/abs/1507.04808)는 Multi-turn의 대화를 모델링하기 위한 구조입니다. 크게 아래 그림과 같이 두개의 Reccurent 인코더 구조를 가지며, 각 발화를 인코딩하는 인코더, 해당 발화의 state를 받아서 세션 전체를 인코딩하는 인코더로 구성됩니다. 이렇게 컨텍스트를 인코딩하고, 이를 바탕으로 다음 발화를 생성합니다. 이 방법론은 논문의 서론에서 제시하듯이 각 발화들이 Sequential하게 구성되었다는 가정을 갖고 있습니다.
 
 ![hred](/images/GSN/HRED.png){: width="100%"}{: .center}
+
+<br>
 
 # Problem Formulation
 
@@ -38,6 +44,8 @@ comments: true
 $$\bar{r} = \underset{r}{\operatorname{argmax}} \log{P(r \vert G)} = \underset{r}{\operatorname{argmax}} \sum\limits_{i=1}^{\vert r \vert} \log{P(r_i \vert G, r_{<i})}$$
 
 여기에 추가적으로 화자에 대한 정보 $$U$$(i,j가 같은 화자이면 $$U_{i,j} = 1$$ 나머지는 $$U_{i,j} = 0$$)를 모델링에 이용합니다.
+
+<br>
 
 # Graph-Structured Neural Network(GSN)
 
@@ -93,6 +101,8 @@ $$s_i^l = s_i^{l - 1} + \eta \cdot \Delta s_{I \vert i} ^ {l - 1} + \lambda \cdo
 
 디코더는 컨텍스트 인코딩 결과를 이용해서 진행되는데, 생성되기 전 마지막 발화의 Context 인코딩 결과와 GRU를 이용하여 연산을 진행합니다. 독특한 점은 인코더에서 마지막 발화의 $$l$$번의 iteration 중간 값을 갖고 있다가, 이와 디코더 현 시점의 hidden state 사이의 attention을 계산하여 이를 다음 스탭의 디코더 계산에 이용했다는 점입니다. (번역에서 각 단어의 encoder 결과를 이용하여 attention을 계산하는 과정과 유사함.)
 
+<br>
+
 # Experiment
 
 ## 1. Setup
@@ -117,6 +127,8 @@ $$s_i^l = s_i^{l - 1} + \eta \cdot \Delta s_{I \vert i} ^ {l - 1} + \lambda \cdo
 ![result_2](/images/GSN/result_2.png){: width="100%"}{: .center}
 
 결과적으로 두 경우 모두 베이스라인을 뛰어넘었고, 제시한 대화의 구조 그래프와 화자 정보 그래프를 이용한 컨텍스트 인코딩 방식(UG-E)이 일반적인 대화 모델링에 있어서 기존 방법들을 뛰어넘었음을 증명했습니다.
+
+<br>
 
 # Reference
 

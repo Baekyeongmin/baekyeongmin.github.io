@@ -14,15 +14,21 @@ comments: true
 
 "Emotion Recognition in Conversation(ERC)"는 대화 내 발화들의 감정을 인식하는 문제입니다. 이 문제는 대화의 히스토리 혹은 쓰레드 형태의 소셜 미디어(유투브, 트위터, 페이스북 등)에서 의견 추출(Opinion mining) 등에서 응용가능성으로 인해, 최근에 많이 주목받고 있습니다. 본 포스트에서는 "화자", "컨텍스트 발화", "이전 발화의 감정"의 3가지 요소를 집중적으로 모델링하여 ERC문제를 풀고자 했던 ["DialogueRNN: An Attentive RNN for Emotion Detection in Conversations"](https://arxiv.org/pdf/1811.00405)를 리뷰합니다.
 
+<br>
+
 # Main Idea
 
 대화는 두 명이상의 화자의 상호작용으로 이루어집니다. 본 논문에서는 각 ERC문제를 풀기위해 대화에 참여하고 있는 화자들의 상태를 각각 모델링함으로써, 성능을 개선하고자 했습니다. 저자들은 화자, 대화의 컨텍스트, 이전 발화의 감정이 대화에서의 감정과 가장 연관성이 높다고 가정하고, 이를 각각의 RNN(Recurrent Neural Network) 모듈로 모델링했습니다.
+
+<br>
 
 # Problem Definition
 
 ![problem](/images/dialogue_rnn/problem.png){: width="70%"}{: .center}
 
 위의 그림과 같이, 대화에서 $$M$$ 명의 화자(party)들 $$p_1, p_2, ... p_M$$이 있을 때, 각 화자들의 발화에 대해 6개의 감정 레이블(happy, sad, neutral, angry, excited, frustrated) 중 하나로 분류하는 문제를 풉니다.
+
+<br>
 
 # Dialogue RNN
 
@@ -107,6 +113,8 @@ $$\tilde e = \beta_t[e_1, e_2, ..., e_N]^T$$
 
 - Bidirectional DialogueRNN + Emotional attention ($$BiDialogueRNN+Att$$): Emotion GRU를 Bidireactional로 하고, Attention 연산을 통해 최종 emotion representation을 만드는 모델.
 
+<br>
+
 # Experiment Setting
 
 ## 1. Dataset
@@ -171,6 +179,8 @@ $$BiDialogueRNN + Att$$: 위의 두 방법을 동시에 적용한 것으로, 더
 ![case3](/images/dialogue_rnn/case3.png){: width="100%"}{: .center}
 
 일반적으로 지역적인 컨텍스트에서 가장 높은 의존성을 보이고 거리에 따라 점점 감소하는 추세를 보입니다. 하지만 약 18%가 20~40턴에 attend하고 있어 장기 의존성은 여전히 중요한 역할을 하고 있습니다. 이러한 경우는 대화에서 감정적인 톤을 유지하고, 잦은 감정적 변화를 일으키지 않을 때 발생합니다. 위 그림의 왼쪽 예시는 장기 의존성의 케이스를 보여줍니다. "Horrible thing. I hate it"이라는 부정적인 표현임에도 불구하고, 전체 컨텍스트를 봤을 때, exciment에 해당합니다. 이 경우, 약 20턴 이전에 있는 발화에 적절히 attend하여 옳은 판단을 하는 모습을 볼 수 있습니다.
+
+<br>
 
 # Reference
 

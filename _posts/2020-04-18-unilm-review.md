@@ -123,6 +123,8 @@ SQuAD(extractive)와 CoQA(extractive & generative) 데이터셋으로 실험을 
 
 이외에도 Question generation(질문 생성 - NLG), Dialogue response generation(답변 생성 - NLG) GLUE 벤치마크(NLU) 등의 downstream 테스크들로 실험을 진행했고, 우수한 성능을 보여주었습니다.
 
+<br>
+
 # 4. Reference
 
 - Li Dong, Nan Yang, Wenhui Wang, Furu Wei, Xiaodong Liu, Yu Wang, Jianfeng Gao, Ming Zhou, and Hsiao-Wuen Hon. 2019. Unified language model pre-training for natural language understanding and generation. NeurIPS 2019

@@ -13,12 +13,17 @@ comments: true
 
 이번 글에서는 Alibaba Group에서 연구한 ["StructBERT: Incorporating Language Structures into Pre-training for Deep Langauge Understanding"](https://arxiv.org/pdf/1908.04577.pdf)를 리뷰하려고 힙니다. 본 논문은 현재 ALBERT에 이어 GLUE 벤치마크 리더보드에서 89.0(2위)의 점수를 얻고 있습니다. 언어의 유창함은 단어와 문장의 순서에 의해 결정되는데, 본 논문에서는 sequential modeling은 "순서"에 대해 주목했습니다. BERT pre-training 단계에서 문장 내부와 문장들 사이 순서의 구조적 정보를 학습할 수 있는 새로운 전략을 제시합니다. 
 
+<br>
+
 # Main Idea
+
 1. BERT에서 Bidirectional Transformer Encoder를 이용하여 두 개의 Objective(Masked-LM, NSP)를 pre-training하여 각 토큰의 Contextual representation을 얻을 수 있었습니다. 본 논문에서는 pre-training 단계에서 특정 토큰들 및 문장들의 "순서"를 예측하는 문제를 추가함으로써, 모델이 잘 정제된 단어 구조와 문장간의 구조를 학습하도록 했습니다.
 
 2. 이상적으로 잘 학습된 Language model은 랜덤한 순서의 단어들이 주어졌을 때, 이를 복구할 수 있어야 하는데, BERT의 학습전략으로는 단어들의 sequential 순서와 단어들의 고차원 의존성을 정확히 모델링하지 못한다고 언급합니다. 이러한 문제를 해결하기 위한 새로운 단어 단위의 pre-training objective를 제시합니다.
 
 3. NSP objective는 쉽게 97-98% 정도의 정확도에 도달할 수 있는데, 이는 문제 자체가 너무 쉽기 때문입니다. 이러한 점에서 NSP를 확장하여 조금 더 어려운 문장들(segment) 사이의 관계를 모델링할 수 있는 pre-training objective를 제시합니다.
+
+<br>
 
 # StructBERT
 ## 1. Model Architecture
@@ -60,6 +65,8 @@ BERT는 Auxiliary task로 Next Sentence Prediction(NSP)을 제시합니다. 이�
 
 모델은 $$BERT_{Base}$$, $$BERT_{Large}$$와 모델 하이퍼파라메터가 같은 두 개의 모델 $$StructBERT_{Base}$$,$$StructBERT_{Large}$$을 이용하여 학습을 진행했습니다.
 
+<br>
+
 # Experiment Result
 
 총 3개의 Downstream task [General Language Understanding Evaluation(GLUE), Stanford Natural Language Inference(SNLI), Stanford Question Answering Dataset(SQuAD v1.1)]에 대해 fine-tuning을 진행했습니다. Fine tuning에서는 Batch size {16,24,32}, Learning rate {2e-5, 3e-5, 5e-5}, Number of epochs {2, 3}, Dropout rate {0.05, 0.1}의 하이퍼 파라메터에 대해 exhaustive search를 진행했고, dev set에서 가장 좋은 성능을 보인 모델을 선택했습니다.
@@ -84,6 +91,8 @@ SNLI도 두 문장간의 의미적 관계를 파악하는 테스크 입니다.(�
 
 Extractive Question Answering은 질문과 해당 질문에 관계있는 문단이 주어졌을 때, 질문의 답이 해당 문단에서 어떤 "span"인지 추출하는 문제를 푸는 것입니다. (즉, 문단에서 답의 처음 index와 끝 index를 추출하는 것입니다.) 저자들은 Data Augmentation(DA)기법을 사용하지 않고 리더보드에서 XLNet을 제외한 나머지 모델들 보다 우수한 성능을 보였습니다. (XLNet은 큰 코퍼스로 pre-training + DA의 효과로 더 좋은 성능을 냈음.)
 
+<br>
+
 # Ablation Study
 
 ![ablation study](/images/StructBERT/ablation_study.jpg){: width="100%"}{: .center}
@@ -97,6 +106,8 @@ Extractive Question Answering은 질문과 해당 질문에 관계있는 문단�
 마지막으로 BERT와 StructBERT의 pre-training 양상은 위 그림과 같이 나타납니다. 위 두 개의 그림을 보면, StructBERT에서 기존 BERT보다 조금 더 수렴되고 향상된 Masked-LM 성능을 볼 수 있는데, 이는 Word structural objective가 MLM에도 긍정적인 영향을 미쳤기 때문으로 볼 수 있습니다. 또한 Word Ordering 테스크 또한 70% 정도의 상당히 높은 정확도를 보이고 있는데, 이는 모델이 단어 순서를 예측하는 비교적 어려운 테스크에 대해서도 잘 학습된다는 것을 보여줍니다.
 
 아래 두 개의 그림에는 각각 Sentence Prediction 테스크에 대한 결과를 나타냅니다. ablation study에서 Sentence structural objective는 pair단위의 테스크들에서 성능 향상을 보였습니다. 해당 논문에서 처음에 제시했던 BERT의 next sentence prediction(약 97~98%의 성능)에 비해 조금 더 도전적인 Sentence Order Prediction(약 87~88%의 성능)을 제시하면서 pre-training 테스크 자체의 성능은 낮지만 downstream 테스크에서 큰 효과를 보일 수 있음을 증명했습니다.
+
+<br>
 
 # Reference
 

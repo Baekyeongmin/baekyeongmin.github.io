@@ -17,6 +17,8 @@ comments: true
 이전 글에서 대화를 그래프 형태로 모델링 하고, 이를 이용하여 답변을 생성해내는 [GSN](https://baekyeongmin.github.io/paper-review/GSN-review/)을 리뷰 했었는데요, 이번 글에서는 Self-Attention을 이용해 Multi-turn 대화의 답변을 생성하는 방법론을 제시한 ["ReCoSa: Detecting the Relevant Contexts with Self-Attention for
 Multi-turn Dialogue Generation(ACL 2019)"](https://www.aclweb.org/anthology/P19-1362/)를 리뷰하려고 합니다.
 
+<br>
+
 # Main Idea
 
 일반적인 대화에서는 이전의 모든 컨텍스트를 고려하기 보다는 일부 컨텍스트에 의존하여 답변합니다. 따라서 주어진 컨텍스트 중 **적절한 컨텍스트**를 고를 수 있는 능력은 매우 중요합니다.
@@ -24,6 +26,8 @@ Multi-turn Dialogue Generation(ACL 2019)"](https://www.aclweb.org/anthology/P19-
 Multi-turn 대화를 생성하기 위해 문장 인코딩과 컨텍스트 인코딩을 계층적으로 수행하고, 이를 이용하여 디코딩을 진행하는 HRED와 같은 방식이 가장 대표적으로 이용되었습니다. 이 구조에서는 컨텍스트 인코딩을 RNN기반 모듈로 진행하는데, RNN은 구조상 가장 가까운 컨텍스트에 bias가 있을 확률이 높습니다. 따라서 컨텍스트 중 가장 필요한 내용 보다는 마지막 발화에 의존하는 경향이 있습니다.
 
 일반적으로 Self-Attention은 각 요소들 간에 직접적인 유사도를 이용하기 때문에, long-distance dependency를 조금 더 잘 모델링할 수 있다고 알려져 있습니다. 본 논문에서는 이를 이용하여 답변을 생성할 때, 어떤 컨텍스트에 집중할지(attend 할지)를 잘 모델링하는 방법론을 제시합니다.
+
+<br>
 
 # Relevant Context Self-Attention Model(ReCoSa)
 
@@ -79,6 +83,8 @@ Self-Attention 연산은 그 자체로 해당 representation의 위치를 구별
 $$\log{P(Y\mid C; \theta)} = \sum\limits^M_{t=1} \log{P(y_t \mid C, y_1, ... y_{t-1};\theta)}$$
 
 이 식을 최대화 하는 쪽으로(negative log-likelihood를 최소화 하도록) 학습이 진행됩니다. 
+
+<br>
 
 # Experiments
 
@@ -143,6 +149,8 @@ Attention 메커니즘을 이용하여 Context 중 어떤 발화를 attend하고
 결과는 위의 표와 같으며 이를 분석해보면 다음과 같습니다.
 - 전체 셈플 중 80%가 마지막 발화의 label이 1이였습니다. WSeq는 이와 같은 양상 때문에, P@1, R@1, F1@1에서 가장 좋은 성능을 보이지만(마지막 발화를 top1으로 뽑을 가능성이 높기에), 나머지에서는 좋지 못한 성능을 보였습니다.
 - @1을 제외한 대부분의 경우에서 ReCoSa가 좋은 결과를 보여주었습니다. 이를 통해 ReCoSa는 인간의 연관성 평가와 상당히 유사한 양상을 보인다는 점을 알 수 있습니다.
+
+<br>
 
 # Reference
 

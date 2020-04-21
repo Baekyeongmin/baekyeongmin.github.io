@@ -16,10 +16,14 @@ comments: true
 대화는 문어체(위키피디아, 책 등)와 많은 차이점을 갖고 있습니다. 자주 사용되는 어휘, 어투 등 각 발화의 형태적인 차이뿐만 아니라, 두 명 이상의 화자가 서로 상호작용을 함으로써 생기는 구조에서도 큰 차이가 있습니다. 이전 포스트들에서 살펴봤듯이, Transformer 구조 기반의 Self-supervised learning(BERT) 방식의 학습법이 대부분 NLP 테스크들의 최고 성능(State-of-the-art)를 달성했습니다. 하지만 이러한 방식들은 주로 문어체 데이터로 pre-training이 이루어 졌기 때문에 대화에 바로 적용하기 힘듭니다. 이를 위해 다양한 방법이 제시되었는데요, 본 포스트에서는 pre-trained BERT를 이용하여 대화의 구조를 모델링 하고자 한 ["Who Did They Respond to?
 Conversation Structure Modeling Using Masked Hierarchical Transformer"(AAAI 2020)](https://arxiv.org/abs/1911.10666) 를 리뷰하려고 합니다.
 
+<br>
+
 # Main Idea
 
 - Google의 pre-trained BERT를 문장 인코더로 이용하고, 이 위에 문장의 구조를 파악할 수 있는 추가적인 Transformer 인코더를 학습시킴으로써, 대화 구조를 모델링하고자 했습니다. 즉, 문장 인코딩의 결과를 이용하여 컨텍스트를 인코딩하는 2단계의 계층적인 구조를 제시합니다.
 - 컨텍스트 인코더를 학습할 때, 대화에서 각 발화의 의존관계를 파악할 수 있도록 하는 Masking 방법을 제시합니다.
+
+<br>
 
 # Conversation Disentanglement
 
@@ -28,6 +32,8 @@ Conversation Structure Modeling Using Masked Hierarchical Transformer"(AAAI 2020
 ![problem](/images/HMT/problem.png){: width="100%"}{: .center}
 
 본 논문 이전에는 이를 문장쌍의 문제로 접근했습니다. 즉 문장쌍 `(문장1, 문장2)` 가 주어졌을 때, `문장1` 의 대답이 `문장2` 인지 구분하는 이진 분류 문제를 풀었습니다. 따라서 대화의 `문장1` 이외의 다른 대화 히스토리는 고려하지 않았습니다. 이 방식으로 위의 예제의 문제를 푼다면 `utterance4`는 `utterance2`, `utterance3` 과 모두 reply-to 관계를 형성할 수 있습니다. 하지만 모든 대화의 히스토리를 고려한다면, `utterance2` 만 답이라는 것을 알 수 있습니다. 본 논문에서는 이를 해결하기 위해 모든 히스토리를 고려하는 방식을 제시합니다.
+
+<br>
 
 # Masked Hierarchical Transformer Model
 
@@ -143,6 +149,7 @@ ubuntu 데이터에 대해서도 위의 그림과 같이 모든 baseline 성능�
 
 ![ablation-depth](/images/HMT/ablation_depth.png){: width="60%"}{: .center}
 
+<br>
 
 # Reference
 

@@ -12,6 +12,8 @@ comments: true
 
 "사람과 기계가 상호작용하는 방식은 변곡점에 있고, 대화형 인공지능은 변화의 중심에 있다." Alexa Prize Socialbot Grand Challenge는 매년 Amazon에서 대학(원)생을 대상으로 개최하는 socialbot을 만드는 챌린지입니다. 2017년부터 매년 진행되고 있으며, 현재 2019년 챌린지가 진행되고 있습니다. 이번 포스트에서는 대회가 어떻게 진행되고, 어떤 목표를 달성하고, 평가하는지 살펴보겠습니다.
 
+<br>
+
 # Alexa Prize Socialbot Grand Challenge 3(2019)
 
 본 대회는 인기 주제들과 뉴스 이벤트에 대해 **일관되고(coherently)**, 사람을 **사로잡는(engagingly)** 소셜 봇을 만들어 경쟁합니다. 참여 팀들은 Knowledge acquisition, Natural language understanding(NLU), Natural language generation(NLG), Context modeling, Commonsense reasoning, Dialogue planning 등 다양한 대화형 AI영역을 발전 시켜, 목표를 달성합니다.
@@ -63,11 +65,15 @@ Amazon은 두 집합의 평가자들을 구성합니다.
 
 1등에게는 $500,000 U.S 달러, 2등에게는 $100,000 U.S 달러, 3등에게는 $50,000 U.S 달러가 주어지며, 1등의 평균 복합 점수가 4.0 이상이고, 20분 이상 지속된 대화가 전체의 2/3 이상인 경우 $1,000,000 U.S 달러가 추가적으로 지급됩니다.(Grand Prize)
 
+<br>
+
 # 마무리
 
 Alexa Prize는 대화형 AI에 관련된 가장 큰 규모의 챌린지입니다. 주어진 규칙을 상세히 읽으면서, 좋은 대화 시스템을 만들기 위해 어떤 요소들을 고려해야 할지 다시 한번 생각해볼 수 있었습니다. 최근에는 대화 시스템이 각 상황에 알맞은 응답을 하는 것은 기본이고, 이를 넘어서 얼마나 흥미롭고 매력적인지를 고려하는 것도 큰 비중을 차지하는 것 같다는 느낌을 받았습니다. 특히 Grand Prize의 20분 이상 대화하는 조건은 2년 동안 달성한 팀이 없고, 실제로 사람과 대화하는 느낌을 재현해야 충족시킬 수 있다고 생각합니다. 이번 년도에는 각 팀이 어떤 방식을 시도했고, 결과는 어떨지 기대가 됩니다. 한편, 자신이 만든 소셜봇을 아마존 서비스를 통해 실 사용자들의 피드백을 받고 문제를 파악할 수 있는 점에서 엄청난 메리트를 갖는 챌린지인 것 같습니다.
 
 다음 포스트에서는 2017년 우승팀 Sounding Board(University of Washington), 2018년 우승팀 Gunrock(University of California, Davis)의 방법론들을 살펴보려고 합니다.
+
+<br>
 
 # Reference
 
