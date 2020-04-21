@@ -4,9 +4,7 @@ layout: post
 categories:
   - paper-review
 tags:
-  - nlp
-  - ERC
-  - AAAI 2019
+  - Dialogue-modeling-review
 last_modified_at: 2020-02-19T20:53:50-05:00
 author: yeongmin
 comments: true

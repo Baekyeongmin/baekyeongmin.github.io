@@ -4,7 +4,7 @@ layout: post
 categories:
   - alexa-prize
 tags:
-  - 글또 4기, dualogue
+  - Dialogue-modeling-review
 last_modified_at: 2020-03-21T20:53:50-05:00
 author: yeongmin
 comments: true

@@ -4,10 +4,7 @@ layout: post
 categories:
   - paper-review
 tags:
-  - paper
-  - nlp
-  - graph
-  - dialogue
+  - Dialogue-modeling-review
 last_modified_at: 2020-01-08T20:53:50-05:00
 author: yeongmin
 comments: true

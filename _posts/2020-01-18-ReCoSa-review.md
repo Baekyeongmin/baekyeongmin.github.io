@@ -4,11 +4,7 @@ layout: post
 categories:
   - paper-review
 tags:
-  - paper
-  - nlp
-  - dialogue
-  - generation
-  - ACL 2019
+  - Dialogue-modeling-review
 last_modified_at: 2020-01-18T20:53:50-05:00
 author: yeongmin
 comments: true

@@ -4,8 +4,7 @@ layout: post
 categories:
   - paper-review
 tags:
-  - paper
-  - nlp
+  - BERT-series-review
 last_modified_at: 2020-04-18T20:53:50-05:00
 author: yeongmin
 comments: true
