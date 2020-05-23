@@ -4,11 +4,11 @@ title: About Me
 permalink: /about/
 ---
 
-**Scatterlab**에서 Machine Learning Software Engieer로 자연어 처리(NLP) 연구/개발을 하고 있습니다. 머신러닝, 자연어 처리 전반 중 특히 일상 대화 시스템(Open Domain Dialogue System)에 관심이 많습니다. 블로그에는 주로 공부한 내용(논문 리뷰 등)을 기록합니다.
+**Scatterlab**에서 Machine Learning Software Engineer로 자연어 처리(NLP) 연구/개발을 하고 있습니다. 머신러닝, 자연어 처리 전반 중 특히 일상 대화 시스템(Open Domain Dialogue System)에 관심이 많습니다. 블로그에는 주로 공부한 내용(논문 리뷰 등)을 기록합니다.
 
 ---
 
-### Eductation
+### Education
 
 **DGIST**
 Bachelor, Basic of Science *(2015 - Present)*
@@ -50,7 +50,7 @@ Natural Language Processing, Computer Vision, Machine Learning, Deep Learning
 
 - {{ currnet_year }}년 : {{ number_of_posts }}개의 포스트{% assign number_of_posts = 0 %}{% endif %}{% endfor %}
 
-**BERT Series Review**: [BERT(NAACL 2019)](https://baekyeongmin.github.io/paper-review/bert-review/), [MT-DNN(arXiv 2019)](https://baekyeongmin.github.io/paper-review/mt-dnn/), [RoBERTa(arXiv 2019)](https://baekyeongmin.github.io/paper-review/mt-dnn/), [ALBERT(ICLR 2020)](https://baekyeongmin.github.io/paper-review/albert-review/), [StructBERT(ICLR 2020)](https://baekyeongmin.github.io/paper-review/structbert-review/), [Transformer-XL(ACL 2019)](https://baekyeongmin.github.io/paper-review/transformer-xl-review/), [XLNet(NeurIPS 2019)](https://baekyeongmin.github.io/paper-review/xlnet-review/), [UniLM(NeurIPS 2019)](https://baekyeongmin.github.io/paper-review/unilm-review/)
+**BERT Series Review**: [BERT(NAACL 2019)](https://baekyeongmin.github.io/paper-review/bert-review/), [MT-DNN(arXiv 2019)](https://baekyeongmin.github.io/paper-review/mt-dnn/), [RoBERTa(arXiv 2019)](https://baekyeongmin.github.io/paper-review/mt-dnn/), [ALBERT(ICLR 2020)](https://baekyeongmin.github.io/paper-review/albert-review/), [StructBERT(ICLR 2020)](https://baekyeongmin.github.io/paper-review/structbert-review/), [Transformer-XL(ACL 2019)](https://baekyeongmin.github.io/paper-review/transformer-xl-review/), [XLNet(NeurIPS 2019)](https://baekyeongmin.github.io/paper-review/xlnet-review/), [UniLM(NeurIPS 2019)](https://baekyeongmin.github.io/paper-review/unilm-review/) [SchuBERT](http://baekyeongmin.github.io/paper-review/schubert-review/)
 
 **Dialogue Modeling(System) Review**: [Transformer for Learning Dialogue(ACL 2020)](https://baekyeongmin.github.io/paper-review/hierarchical-multiparty-transformer/), [Masked Hierarchical Transformer(AAAI 2020)](https://baekyeongmin.github.io/paper-review/masked-hierarchical-transformer-review/), [Graph-Structured Network(IJCAI 2019)](https://baekyeongmin.github.io/paper-review/GSN-review/), [ReCoSa(ACL 2019)](https://baekyeongmin.github.io/paper-review/ReCoSa-review/), [DialogueRNN(AAAI 2019)](https://baekyeongmin.github.io/paper-review/dialogueRNN-review/), [SoundingBoard(Alexa Prize 2017 1st prize)](https://baekyeongmin.github.io/alexa-prize/sounding-board-review/)
 
