@@ -17,7 +17,9 @@ Bachelor, Basic of Science *(2015 - Present)*
 
 ### Work Experience
 
-**Scatterlab**, Machine Learning Software Engineer *(Mar 2019 - Present)*
+**Daangn Market**, Machine Learning Engineer *(Jul 2020 - Present)*
+
+**Scatterlab**, Machine Learning Software Engineer *(Mar 2019 - Jun 2020)*
 
 - Research on Pre-training Language Models for Dialogue System. [[Blog post](https://blog.pingpong.us/dialog-bert-pretrain/)]
 - Research on [Knowledge Distillation](https://speakerdeck.com/scatterlab/overview-and-recent-research-in-distillation) methods for model compression and BERT serving.
