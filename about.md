@@ -4,7 +4,7 @@ title: About Me
 permalink: /about/
 ---
 
-**Scatterlab**에서 Machine Learning Software Engineer로 자연어 처리(NLP) 연구/개발을 하고 있습니다. 머신러닝, 자연어 처리 전반 중 특히 일상 대화 시스템(Open Domain Dialogue System)에 관심이 많습니다. 블로그에는 주로 공부한 내용(논문 리뷰 등)을 기록합니다.
+**당근 마켓**에서 Machine Learning Engineer로 다양한 Machine Learning Application 연구/개발을 하고 있습니다. 자연어 처리, 컴퓨터 비전 등 전반적인 머신러닝/딥러닝에 관심이 많습니다. 블로그에는 주로 공부한 내용(논문 리뷰 등)을 기록합니다.
 
 ---
 
