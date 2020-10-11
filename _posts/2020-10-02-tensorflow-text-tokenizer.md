@@ -271,8 +271,7 @@ Date: Sun, 11 Oct 2020 06:20:26 GMT
 Content-Length: 58
 
 {
-    "predictions": [[0.00181851524, 0.998181462]
-    ]
+    "predictions": [[0.00181851524, 0.998181462]]
 }
 ```
 
