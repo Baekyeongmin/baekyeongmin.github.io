@@ -24,7 +24,7 @@ Bachelor, Basic of Science *(2015 - Present)*
 - Research on Pre-training Language Models for Dialogue System. [[Blog post](https://blog.pingpong.us/dialog-bert-pretrain/)]
 - Research on [Knowledge Distillation](https://speakerdeck.com/scatterlab/overview-and-recent-research-in-distillation) methods for model compression and BERT serving.
 - Develop Multitask Fine-tuning (MT-DNN) system for NLU inference Integration.
-- Develop multi-turn reaction and response selection model using BERT. [[Blog post](https://blog.pingpong.us/ml-dialog-bert-multiturn/), [Demo](https://demo.pingpong.us/multi-turn-reaction/)]
+- Develop multi-turn reaction and response selection model using BERT. [[Blog post](https://blog.pingpong.us/dialog-bert-multiturn/), [Demo](https://demo.pingpong.us/multi-turn-reaction/)]
 
 **Naver Clova AI**, AI Research Intern *(Dec 2018 - Feb 2019)*
 
