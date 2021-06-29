@@ -13,8 +13,6 @@ permalink: /about/
 **DGIST**
 Bachelor, Basic of Science *(2015 - Present)*
 
-- 산업기능요원 복무 중입니다.(휴학)
-
 ### Work Experience
 
 **Daangn Market**, Machine Learning Engineer *(Jul 2020 - Present)*
